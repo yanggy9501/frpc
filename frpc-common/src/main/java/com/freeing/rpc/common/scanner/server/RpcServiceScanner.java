@@ -1,6 +1,7 @@
 package com.freeing.rpc.common.scanner.server;
 
 import com.freeing.rpc.annotation.RpcService;
+import com.freeing.rpc.common.helper.RpcServiceHelper;
 import com.freeing.rpc.common.scanner.ClassScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @RpcService注解扫描器
@@ -22,7 +24,7 @@ public class RpcServiceScanner  extends ClassScanner {
             throws IOException, ClassNotFoundException {
         Map<String, Object> handlerMap = new HashMap<>();
         List<String> classNameList = getClassNameList(scanPackage);
-        if (classNameList == null || classNameList.isEmpty()) {
+        if (Objects.isNull(classNameList) || classNameList.isEmpty()) {
             return handlerMap;
         }
         for (String className : classNameList) {
@@ -34,7 +36,7 @@ public class RpcServiceScanner  extends ClassScanner {
                     //TODO 后续逻辑向注册中心注册服务元数据，同时向handlerMap中记录标注了RpcService注解的类实例
                     //handlerMap中的Key先简单存储为serviceName+version+group，后续根据实际情况处理key
                     String serviceName = getServiceName(rpcService);
-                    String key = serviceName.concat(rpcService.version()).concat(rpcService.group());
+                    String key = RpcServiceHelper.buildServiceKey(serviceName, rpcService.version(), rpcService.group());
                     handlerMap.put(key, clazz.newInstance());
                 } catch (Exception e) {
                     LOGGER.error("scan classes throws exception", e);
@@ -51,7 +53,7 @@ public class RpcServiceScanner  extends ClassScanner {
             return rpcService.interfaceClassName();
         }
         String serviceName = interfaceClass.getName();
-        if (serviceName == null || serviceName.trim().isEmpty()) {
+        if (Objects.isNull(serviceName)  || serviceName.trim().isEmpty()) {
             serviceName = rpcService.interfaceClassName();
         }
         return serviceName;
