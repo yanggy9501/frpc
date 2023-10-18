@@ -2,6 +2,7 @@ package com.freeing.rpc.provider.common.server.base;
 
 import com.freeing.rpc.codec.RpcDecoder;
 import com.freeing.rpc.codec.RpcEncoder;
+import com.freeing.rpc.constants.RpcConstants;
 import com.freeing.rpc.provider.common.handler.RpcProviderHandler;
 import com.freeing.rpc.provider.common.server.api.Server;
 import io.netty.bootstrap.ServerBootstrap;
@@ -35,17 +36,20 @@ public class BaseServer implements Server {
      */
     protected int port = 27110;
 
+    protected String reflect = RpcConstants.REFLECT_TYPE_CGLIB;
+
     /**
      * 存储的是实体类关系
      */
     protected Map<String, Object> handlerMap = new HashMap<>();
 
-    public BaseServer(String serverAddress){
+    public BaseServer(String serverAddress, String reflectType){
         if (!StringUtils.isEmpty(serverAddress)){
             String[] serverArray = serverAddress.split(":");
             this.host = serverArray[0];
             this.port = Integer.parseInt(serverArray[1]);
         }
+        this.reflect = reflectType;
     }
 
     @Override
@@ -63,7 +67,7 @@ public class BaseServer implements Server {
                         socketChannel.pipeline()
                             .addLast(new RpcDecoder())
                             .addLast(new RpcEncoder())
-                            .addLast(new RpcProviderHandler(handlerMap));
+                            .addLast(new RpcProviderHandler(reflect, handlerMap));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)
