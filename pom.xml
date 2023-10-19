@@ -18,6 +18,7 @@
         <module>frpc-serialization</module>
         <module>frpc-codec</module>
         <module>frpc-test</module>
+        <module>frpc-consumer</module>
     </modules>
 
     <properties>
