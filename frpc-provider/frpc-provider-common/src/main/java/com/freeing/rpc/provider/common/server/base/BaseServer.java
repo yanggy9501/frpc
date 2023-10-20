@@ -58,6 +58,7 @@ public class BaseServer implements Server {
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {
+            logger.error("RPC Server provider start ...");
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
