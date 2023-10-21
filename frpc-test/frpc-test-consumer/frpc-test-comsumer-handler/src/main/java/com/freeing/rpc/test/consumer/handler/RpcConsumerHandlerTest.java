@@ -2,6 +2,7 @@ package com.freeing.rpc.test.consumer.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.freeing.rpc.consumer.common.RpcConsumer;
+import com.freeing.rpc.consumer.common.future.RPCFuture;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.header.RpcHeaderFactory;
 import com.freeing.rpc.protocol.request.RpcRequest;
@@ -12,9 +13,9 @@ import com.freeing.rpc.protocol.request.RpcRequest;
 public class RpcConsumerHandlerTest {
     public static void main(String[] args) throws Exception {
         RpcConsumer consumer = RpcConsumer.getInstance();
-        Object result = consumer.sendRequest(getRpcRequestProtocol());
+        RPCFuture result = consumer.sendRequest(getRpcRequestProtocol());
         Thread.sleep(2000);
-        System.out.println(JSON.toJSONString(result));
+        System.out.println(JSON.toJSONString(result.get()));
         consumer.close();
     }
 
