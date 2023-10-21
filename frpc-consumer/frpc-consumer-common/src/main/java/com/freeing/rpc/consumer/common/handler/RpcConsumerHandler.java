@@ -1,6 +1,7 @@
 package com.freeing.rpc.consumer.common.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.freeing.rpc.consumer.common.context.RpcContext;
 import com.freeing.rpc.consumer.common.future.RPCFuture;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.header.RpcHeader;
@@ -69,11 +70,38 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
         }
     }
 
-    public RPCFuture sendRequest(RpcProtocol<RpcRequest> protocol) {
-        logger.info("服务消费值发送数据 ===>>> {}", JSON.toJSONString(protocol));
+    public RPCFuture sendRequest(RpcProtocol<RpcRequest> protocol, boolean async, boolean oneway) {
+        RPCFuture rpcFuture;
+        if (oneway) {
+            rpcFuture = sendRequestOneway(protocol);
+        } else if (async) {
+            rpcFuture = sendRequestAsync(protocol);
+        } else {
+            rpcFuture = sendRequestSync(protocol);
+        }
+        return rpcFuture;
+    }
+
+    private RPCFuture sendRequestSync(RpcProtocol<RpcRequest> protocol) {
+        logger.info("服务消费者 Sync 方式发送数据 ===>>> {}", JSON.toJSONString(protocol));
         RPCFuture rpcFuture = this.getRpcFuture(protocol);
         channel.writeAndFlush(protocol);
         return rpcFuture;
+    }
+
+    private RPCFuture sendRequestAsync(RpcProtocol<RpcRequest> protocol) {
+        logger.info("服务消费者 Async 方式发送数据 ===>>> {}", JSON.toJSONString(protocol));
+        RPCFuture rpcFuture = this.getRpcFuture(protocol);
+        // 如果是异步调用，则将RPCFuture放入RpcContext
+        RpcContext.getContext().setRPCFuture(rpcFuture);
+        channel.writeAndFlush(protocol);
+        return null;
+    }
+
+    private RPCFuture sendRequestOneway(RpcProtocol<RpcRequest> protocol) {
+        logger.info("服务消费者 Oneway 方式发送数据 ===>>> {}", JSON.toJSONString(protocol));
+        channel.writeAndFlush(protocol);
+        return null;
     }
 
     private RPCFuture getRpcFuture(RpcProtocol<RpcRequest> protocol) {
