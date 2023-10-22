@@ -1,11 +1,12 @@
 package com.freeing.rpc.consumer.common;
 
 import com.freeing.rpc.common.threadpool.ClientThreadPool;
-import com.freeing.rpc.consumer.common.future.RPCFuture;
 import com.freeing.rpc.consumer.common.handler.RpcConsumerHandler;
 import com.freeing.rpc.consumer.common.initializer.RpcConsumerInitializer;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.request.RpcRequest;
+import com.freeing.rpc.proxy.api.consumer.Consumer;
+import com.freeing.rpc.proxy.api.future.RPCFuture;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author yanggy
  */
-public class RpcConsumer {
+public class RpcConsumer implements Consumer {
     private static final Logger logger = LoggerFactory.getLogger(RpcConsumer.class);
 
     private final Bootstrap bootstrap;
@@ -58,6 +59,7 @@ public class RpcConsumer {
         ClientThreadPool.shutdown();
     }
 
+    @Override
     public RPCFuture sendRequest(RpcProtocol<RpcRequest> protocol) throws Exception {
         // TODO 暂时写死，后续在引入注册中心时，从注册中心获取
         String serviceAddress = "127.0.0.1";

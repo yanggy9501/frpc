@@ -23,5 +23,11 @@
             <artifactId>frpc-codec</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-proxy-jdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

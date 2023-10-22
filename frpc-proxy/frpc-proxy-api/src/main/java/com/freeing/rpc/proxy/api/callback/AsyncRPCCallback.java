@@ -1,4 +1,4 @@
-package com.freeing.rpc.consumer.common.callback;
+package com.freeing.rpc.proxy.api.callback;
 
 /**
  * 异步回调接口

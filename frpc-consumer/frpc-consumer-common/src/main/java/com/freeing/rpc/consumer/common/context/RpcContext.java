@@ -1,6 +1,6 @@
 package com.freeing.rpc.consumer.common.context;
 
-import com.freeing.rpc.consumer.common.future.RPCFuture;
+import com.freeing.rpc.proxy.api.future.RPCFuture;
 
 /**
  * 保存RPC上下文

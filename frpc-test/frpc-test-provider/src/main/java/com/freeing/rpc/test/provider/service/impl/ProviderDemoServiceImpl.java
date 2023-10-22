@@ -1,7 +1,7 @@
 package com.freeing.rpc.test.provider.service.impl;
 
 import com.freeing.rpc.annotation.RpcService;
-import com.freeing.rpc.test.provider.service.DemoService;
+import com.freeing.rpc.test.api.DemoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author yanggy
  */
-@RpcService(interfaceClass = DemoService.class, interfaceClassName = "com.freeing.rpc.test.provider.service.DemoService", version = "1.0.0", group = "freeing")
+@RpcService(interfaceClass = DemoService.class, version = "1.0.0", group = "default")
 public class ProviderDemoServiceImpl implements DemoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProviderDemoServiceImpl.class);
     @Override

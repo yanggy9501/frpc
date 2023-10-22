@@ -14,6 +14,7 @@
     <modules>
         <module>frpc-test-consumer</module>
         <module>frpc-test-provider</module>
+        <module>frpc-test-api</module>
     </modules>
 
     <properties>

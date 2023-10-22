@@ -2,11 +2,11 @@ package com.freeing.rpc.consumer.common.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.freeing.rpc.consumer.common.context.RpcContext;
-import com.freeing.rpc.consumer.common.future.RPCFuture;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.header.RpcHeader;
 import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.protocol.response.RpcResponse;
+import com.freeing.rpc.proxy.api.future.RPCFuture;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;

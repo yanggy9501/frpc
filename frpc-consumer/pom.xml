@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>frpc-consumer-common</module>
+        <module>frpc-consumer-native</module>
     </modules>
 
     <properties>

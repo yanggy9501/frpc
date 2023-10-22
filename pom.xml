@@ -19,6 +19,7 @@
         <module>frpc-codec</module>
         <module>frpc-test</module>
         <module>frpc-consumer</module>
+        <module>frpc-proxy</module>
     </modules>
 
     <properties>

@@ -1,10 +1,10 @@
-package com.freeing.rpc.consumer.common.future;
+package com.freeing.rpc.proxy.api.future;
 
 import com.freeing.rpc.common.threadpool.ClientThreadPool;
-import com.freeing.rpc.consumer.common.callback.AsyncRPCCallback;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.protocol.response.RpcResponse;
+import com.freeing.rpc.proxy.api.callback.AsyncRPCCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
