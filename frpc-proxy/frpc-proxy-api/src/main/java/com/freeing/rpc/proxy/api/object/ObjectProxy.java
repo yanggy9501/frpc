@@ -2,8 +2,10 @@ package com.freeing.rpc.proxy.api.object;
 
 import com.alibaba.fastjson.JSON;
 import com.freeing.rpc.protocol.RpcProtocol;
+import com.freeing.rpc.protocol.header.RpcHeader;
 import com.freeing.rpc.protocol.header.RpcHeaderFactory;
 import com.freeing.rpc.protocol.request.RpcRequest;
+import com.freeing.rpc.proxy.api.async.IAsyncObjectProxy;
 import com.freeing.rpc.proxy.api.consumer.Consumer;
 import com.freeing.rpc.proxy.api.future.RPCFuture;
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author yanggy
  */
-public class ObjectProxy<T> implements InvocationHandler {
+public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
     private static final Logger logger = LoggerFactory.getLogger(ObjectProxy.class);
 
     /**
@@ -114,5 +116,64 @@ public class ObjectProxy<T> implements InvocationHandler {
 
         return rpcFuture == null ? null :
             timeout > 0 ? rpcFuture.get(timeout, TimeUnit.MILLISECONDS) : rpcFuture.get();
+    }
+
+    @Override
+    public RPCFuture call(String funcName, Object... args) {
+        RpcProtocol<RpcRequest> request = createRequest(this.clazz.getName(), funcName, args);
+        RPCFuture rpcFuture = null;
+        try {
+            rpcFuture = this.consumer.sendRequest(request);
+        } catch (Exception e) {
+            logger.error("async all throws exception", e);
+        }
+        return rpcFuture;
+    }
+
+    private RpcProtocol<RpcRequest> createRequest(String className, String methodName, Object[] args) {
+        RpcProtocol<RpcRequest> requestRpcProtocol = new RpcProtocol<>();
+
+        RpcHeader header = RpcHeaderFactory.getRequestHeader(this.serializationType);
+        requestRpcProtocol.setHeader(header);
+
+        RpcRequest request = new RpcRequest();
+        request.setClassName(className);
+        request.setMethodName(methodName);
+        request.setParameters(args);
+        request.setVersion(this.serviceVersion);
+        request.setGroup(this.serviceGroup);
+
+        Class<?>[] parameterTypes = new Class[args.length];
+        for (int i = 0; i < args.length; i++) {
+            parameterTypes[i] = getClassType(args[i]);
+        }
+        request.setParameterTypes(parameterTypes);
+        requestRpcProtocol.setBody(request);
+
+        return requestRpcProtocol;
+    }
+
+    private Class<?> getClassType(Object obj){
+        Class<?> classType = obj.getClass();
+        String typeName = classType.getName();
+        switch (typeName){
+            case "java.lang.Integer":
+                return Integer.TYPE;
+            case "java.lang.Long":
+                return Long.TYPE;
+            case "java.lang.Float":
+                return Float.TYPE;
+            case "java.lang.Double":
+                return Double.TYPE;
+            case "java.lang.Character":
+                return Character.TYPE;
+            case "java.lang.Boolean":
+                return Boolean.TYPE;
+            case "java.lang.Short":
+                return Short.TYPE;
+            case "java.lang.Byte":
+                return Byte.TYPE;
+        }
+        return classType;
     }
 }
