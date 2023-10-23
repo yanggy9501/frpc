@@ -1,5 +1,6 @@
 package com.freeing.rpc.provider.common.handler;
 
+import com.alibaba.fastjson.JSON;
 import com.freeing.rpc.common.helper.RpcServiceHelper;
 import com.freeing.rpc.common.threadpool.ServerThreadPool;
 import com.freeing.rpc.constants.RpcConstants;
@@ -57,7 +58,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
             try {
                 Object result = handle(request);
                 response.setResult(result);
-                response.setOneway(response.getOneway());
+                response.setOneway(request.getOneway());
                 response.setAsync(request.getAsync());
                 header.setStatus((byte)RpcStatus.SUCCESS.getCode());
             } catch (Throwable t) {
@@ -83,25 +84,14 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
         String key = RpcServiceHelper.buildServiceKey(request.getClassName(), request.getVersion(), request.getGroup());
         Object serviceBean = handlerMap.get(key);
         if (Objects.isNull(serviceBean)) {
-            throw new RuntimeException(String.format("service not exist: %s:%s", request.getClassName(), request.getMethodName()));
+            throw new RuntimeException(String.format("service bean instance not exist: %s:%s", request.getClassName(), request.getMethodName()));
         }
         Class<?> serviceClass = serviceBean.getClass();
         String methodName = request.getMethodName();
         Class<?>[] parameterTypes = request.getParameterTypes();
         Object[] parameters = request.getParameters();
 
-        logger.debug(serviceClass.getName());
-        logger.debug(methodName);
-        if (parameterTypes != null && parameterTypes.length > 0){
-            for (int i = 0; i < parameterTypes.length; ++i) {
-                logger.debug(parameterTypes[i].getName());
-            }
-        }
-        if (parameters != null && parameters.length > 0){
-            for (int i = 0; i < parameters.length; ++i) {
-                logger.debug(parameters[i].toString());
-            }
-        }
+        logger.info("RpcInvoeMehtod|rpc协议解析完成|{}", JSON.toJSONString(request));
 
         return invoeMehtod(serviceBean, serviceClass, methodName, parameterTypes, parameters);
     }
@@ -121,6 +111,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
 
     private Object invoeJDKMehtod(Object serviceBean, Class<?> serviceClass, String methodName, Class<?>[] parameterTypes,
         Object[] parameters) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        logger.info("use jdk reflect type invoke method...");
         Method method = serviceClass.getMethod(methodName, parameterTypes);
         method.setAccessible(true);
         return method.invoke(serviceBean, parameters);

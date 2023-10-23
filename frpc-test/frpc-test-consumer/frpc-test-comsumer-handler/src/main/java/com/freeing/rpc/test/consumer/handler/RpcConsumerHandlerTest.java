@@ -43,7 +43,7 @@ public class RpcConsumerHandlerTest {
         RpcProtocol<RpcRequest> protocol = new RpcProtocol<>();
         protocol.setHeader(RpcHeaderFactory.getRequestHeader("jdk"));
         RpcRequest request = new RpcRequest();
-        request.setClassName("com.freeing.rpc.test.provider.service.DemoService");
+        request.setClassName("com.freeing.rpc.test.api.DemoService");
         request.setGroup("freeing");
         request.setMethodName("hello");
         request.setParameters(new Object[]{"hello rpc"});

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 @RpcService(interfaceClass = DemoService.class, version = "1.0.0", group = "default")
 public class ProviderDemoServiceImpl implements DemoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProviderDemoServiceImpl.class);
+
     @Override
     public String hello(String name) {
         LOGGER.info("调用 hello 方法，方法参数 {}", name);

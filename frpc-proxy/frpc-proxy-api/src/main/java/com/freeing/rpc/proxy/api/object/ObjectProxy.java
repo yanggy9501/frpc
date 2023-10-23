@@ -29,27 +29,27 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
     private Class<T> clazz;
 
     /**
-     *
+     * 服务版本
      */
     private String serviceVersion;
 
     /**
-     *
+     * 服务分组
      */
     private String serviceGroup;
 
     /**
-     *
+     * 超时时间
      */
     private long timeout = 15000;
 
     /**
-     *
+     * 服务消费者
      */
     private Consumer consumer;
 
     /**
-     *
+     * 序列化类型
      */
     private String serializationType;
 
@@ -114,8 +114,8 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
 
         RPCFuture rpcFuture = this.consumer.sendRequest(requestRpcProtocol);
 
-        return rpcFuture == null ? null :
-            timeout > 0 ? rpcFuture.get(timeout, TimeUnit.MILLISECONDS) : rpcFuture.get();
+        return rpcFuture == null
+            ? null : timeout > 0 ? rpcFuture.get(timeout, TimeUnit.MILLISECONDS) : rpcFuture.get();
     }
 
     @Override
