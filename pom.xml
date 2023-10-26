@@ -20,6 +20,7 @@
         <module>frpc-test</module>
         <module>frpc-consumer</module>
         <module>frpc-proxy</module>
+        <module>frpc-registry</module>
     </modules>
 
     <properties>
