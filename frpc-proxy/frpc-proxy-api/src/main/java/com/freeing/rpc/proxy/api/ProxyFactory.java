@@ -9,7 +9,7 @@ public interface ProxyFactory {
     /**
      * 获取代理对象
      */
-    <T> T getProxy(Class<?> clazz);
+    <T> T getProxy(Class<T> clazz);
 
     /**
      * 默认初始化方法

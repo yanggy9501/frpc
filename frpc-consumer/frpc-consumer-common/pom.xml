@@ -29,5 +29,11 @@
             <artifactId>frpc-proxy-jdk</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-registry-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
