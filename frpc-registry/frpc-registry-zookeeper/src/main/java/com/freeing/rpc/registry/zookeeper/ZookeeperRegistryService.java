@@ -24,7 +24,7 @@ import java.util.Random;
  */
 public class ZookeeperRegistryService implements RegistryService {
 
-    public static final int BASE_SLEEP_TIME_MS = 1000;
+    public static final int BASE_SLEEP_TIME_MS = 100000;
 
     public static final int MAX_RETRIES = 3;
 
@@ -34,8 +34,10 @@ public class ZookeeperRegistryService implements RegistryService {
 
     @Override
     public void init(RegistryConfig registryConfig) throws Exception {
-        CuratorFramework client = CuratorFrameworkFactory.newClient(registryConfig.getRegistrAddress(),
-            new ExponentialBackoffRetry(BASE_SLEEP_TIME_MS, MAX_RETRIES));
+        CuratorFramework client = CuratorFrameworkFactory.builder()
+            .connectString(registryConfig.getRegistryAddr())
+            .retryPolicy(new ExponentialBackoffRetry(BASE_SLEEP_TIME_MS, MAX_RETRIES))
+            .build();
         client.start();
 
         JsonInstanceSerializer<ServiceMeta> serializer = new JsonInstanceSerializer<>(ServiceMeta.class);

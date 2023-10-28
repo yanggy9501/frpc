@@ -13,24 +13,24 @@ public class RegistryConfig implements Serializable {
     /**
      * 注册地址
      */
-    private String registrAddress;
+    private String registryAddr;
 
     /**
      * 注册类型
      */
     private String registryType;
 
-    public RegistryConfig(String registrAddress, String registryType) {
-        this.registrAddress = registrAddress;
+    public RegistryConfig(String registryAddr, String registryType) {
+        this.registryAddr = registryAddr;
         this.registryType = registryType;
     }
 
-    public String getRegistrAddress() {
-        return registrAddress;
+    public String getRegistryAddr() {
+        return registryAddr;
     }
 
-    public void setRegistrAddress(String registrAddress) {
-        this.registrAddress = registrAddress;
+    public void setRegistryAddr(String registryAddr) {
+        this.registryAddr = registryAddr;
     }
 
     public String getRegistryType() {

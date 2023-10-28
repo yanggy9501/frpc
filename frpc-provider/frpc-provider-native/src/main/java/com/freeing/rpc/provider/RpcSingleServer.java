@@ -1,7 +1,7 @@
 package com.freeing.rpc.provider;
 
 import com.alibaba.fastjson.JSON;
-import com.freeing.rpc.common.scanner.server.RpcServiceScanner;
+import com.freeing.rpc.provider.common.scanner.RpcServiceScanner;
 import com.freeing.rpc.provider.common.server.base.BaseServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,16 +16,12 @@ public class RpcSingleServer extends BaseServer {
 
     /**
      * 构造单机服务提供者，并完成服务的扫描和注册
-     *
-     * @param serverAddress
-     * @param scanPackage
-     * @param reflectType
      */
-    public RpcSingleServer(String serverAddress, String scanPackage, String reflectType) {
+    public RpcSingleServer(String serverAddress,  String registryAddress, String registryType, String scanPackage, String reflectType) {
         // 调用父类构造方法
-        super(serverAddress, reflectType);
+        super(serverAddress, registryAddress, registryType, reflectType);
         try {
-            this.handlerMap = RpcServiceScanner.doScanWithRpcServiceAnnotationFilterAndRegistryService(scanPackage);
+            this.handlerMap = RpcServiceScanner.doScanWithRpcServiceAnnotationFilterAndRegistryService(scanPackage, registryService, this.host, this.port);
         } catch (Exception e) {
             logger.error("RPC Server init error", e);
         }

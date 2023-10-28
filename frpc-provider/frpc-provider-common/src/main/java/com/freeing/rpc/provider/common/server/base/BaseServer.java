@@ -5,6 +5,9 @@ import com.freeing.rpc.codec.RpcEncoder;
 import com.freeing.rpc.constants.RpcConstants;
 import com.freeing.rpc.provider.common.handler.RpcProviderHandler;
 import com.freeing.rpc.provider.common.server.api.Server;
+import com.freeing.rpc.registry.api.RegistryService;
+import com.freeing.rpc.registry.api.config.RegistryConfig;
+import com.freeing.rpc.registry.zookeeper.ZookeeperRegistryService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -43,13 +46,31 @@ public class BaseServer implements Server {
      */
     protected Map<String, Object> handlerMap = new HashMap<>();
 
-    public BaseServer(String serverAddress, String reflectType){
+    /**
+     * 注册服务
+     */
+    protected RegistryService registryService;
+
+    public BaseServer(String serverAddress,  String registryAddress, String registryType, String reflectType){
         if (!StringUtils.isEmpty(serverAddress)){
             String[] serverArray = serverAddress.split(":");
             this.host = serverArray[0];
             this.port = Integer.parseInt(serverArray[1]);
         }
         this.reflect = reflectType;
+        this.registryService = this.getRegistryService(registryAddress, registryType);
+    }
+
+    private RegistryService getRegistryService(String registryAddress, String registryType) {
+        // TODO 后续扩展支持SPI
+        RegistryService registryService = null;
+        try {
+            registryService = new ZookeeperRegistryService();
+            registryService.init(new RegistryConfig(registryAddress, registryType));
+        }catch (Exception e){
+            logger.error("RPC Server init error", e);
+        }
+        return registryService;
     }
 
     @Override
