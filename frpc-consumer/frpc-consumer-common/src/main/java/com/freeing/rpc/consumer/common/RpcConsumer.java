@@ -66,7 +66,8 @@ public class RpcConsumer implements Consumer {
     @Override
     public RPCFuture sendRequest(RpcProtocol<RpcRequest> protocol, RegistryService registryService) throws Exception {
         RpcRequest request = protocol.getBody();
-        String serviceKey = RpcServiceHelper.buildServiceKey(request.getClassName(), request.getVersion(), request.getGroup());
+        String serviceKey = RpcServiceHelper
+            .buildServiceKey(request.getClassName(), request.getVersion(), request.getGroup());
         Object[] params = request.getParameters();
         int invokerHashCode =  (params == null || params.length <= 0) ? serviceKey.hashCode() : params[0].hashCode();
         ServiceMeta serviceMeta = registryService.discovery(serviceKey, invokerHashCode);

@@ -38,7 +38,6 @@ public class ProxyConfig<T> implements Serializable {
      */
     private RegistryService registryService;
 
-
     /**
      * 消费者接口
      */

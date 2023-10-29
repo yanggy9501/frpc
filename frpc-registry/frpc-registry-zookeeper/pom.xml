@@ -24,6 +24,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-loadbalancer-random</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- zookeeper 客户端 -->
         <dependency>
             <groupId>org.apache.curator</groupId>

@@ -33,11 +33,6 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
     private SocketAddress remotePeer;
 
     /**
-     * 存储请求ID与RpcResponse协议的映射关系
-     */
-    //private Map<Long, RpcProtocol<RpcResponse>> pendingResponse = new ConcurrentHashMap<>();
-
-    /**
      * 存储请求ID与RRPCFuture的映射关系
      */
     private Map<Long, RPCFuture> pendingRPC = new ConcurrentHashMap<>();
@@ -56,16 +51,18 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcProtocol<RpcResponse> protocol) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcProtocol<RpcResponse> protocol)
+            throws Exception {
         if (Objects.isNull(protocol)) {
             return;
         }
-        logger.info("服务消费者接收到的数据 ===>>> {}", JSON.toJSONString(protocol));
+        logger.info("服务消费者收到服务过提供者的数据 ===>>> {}", JSON.toJSONString(protocol));
         RpcHeader header = protocol.getHeader();
         long requestId = header.getRequestId();
         // 接收到响应，则为 Future 进行处理
         RPCFuture rpcFuture = pendingRPC.remove(requestId);
         if (Objects.nonNull(rpcFuture)) {
+            // 异步 Future 回调处理
             rpcFuture.done(protocol);
         }
     }

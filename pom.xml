@@ -48,6 +48,7 @@
         <module>frpc-consumer</module>
         <module>frpc-proxy</module>
         <module>frpc-registry</module>
+        <module>frpc-loadbalancer</module>
     </modules>
 
     <dependencies>

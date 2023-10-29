@@ -1,6 +1,8 @@
 package com.freeing.rpc.registry.zookeeper;
 
+import com.freeing.loadbalancer.api.ServiceLoadBalancer;
 import com.freeing.rpc.common.helper.RpcServiceHelper;
+import com.freeing.rpc.loadbalancer.random.RandomServiceLoadBalancer;
 import com.freeing.rpc.protocol.meta.ServiceMeta;
 import com.freeing.rpc.registry.api.RegistryService;
 import com.freeing.rpc.registry.api.config.RegistryConfig;
@@ -15,7 +17,6 @@ import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 
 /**
  * 基于Zookeeper的注册服务
@@ -32,6 +33,8 @@ public class ZookeeperRegistryService implements RegistryService {
 
     private ServiceDiscovery<ServiceMeta> serviceDiscovery;
 
+    private ServiceLoadBalancer<ServiceInstance<ServiceMeta>> serviceLoadBalancer;
+
     @Override
     public void init(RegistryConfig registryConfig) throws Exception {
         CuratorFramework client = CuratorFrameworkFactory.builder()
@@ -47,6 +50,7 @@ public class ZookeeperRegistryService implements RegistryService {
             .basePath(ZK_BASE_PATH)
             .build();
         this.serviceDiscovery.start();
+        this.serviceLoadBalancer = new RandomServiceLoadBalancer<>();
     }
 
     @Override
@@ -76,20 +80,12 @@ public class ZookeeperRegistryService implements RegistryService {
     @Override
     public ServiceMeta discovery(String serviceName, int invokerHashCode) throws Exception {
         Collection<ServiceInstance<ServiceMeta>> serviceInstances = serviceDiscovery.queryForInstances(serviceName);
-        ServiceInstance<ServiceMeta> instance = this.selectOneServiceInstance((List<ServiceInstance<ServiceMeta>>) serviceInstances);
+        ServiceInstance<ServiceMeta> instance = serviceLoadBalancer
+            .select((List<ServiceInstance<ServiceMeta>>) serviceInstances, invokerHashCode);
         if (instance != null) {
             return instance.getPayload();
         }
         return null;
-    }
-
-    private ServiceInstance<ServiceMeta> selectOneServiceInstance(List<ServiceInstance<ServiceMeta>> serviceInstances){
-        if (serviceInstances == null || serviceInstances.isEmpty()){
-            return null;
-        }
-        Random random = new Random();
-        int index = random.nextInt(serviceInstances.size());
-        return serviceInstances.get(index);
     }
 
     @Override
