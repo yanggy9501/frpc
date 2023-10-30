@@ -49,6 +49,7 @@
         <module>frpc-proxy</module>
         <module>frpc-registry</module>
         <module>frpc-loadbalancer</module>
+        <module>frpc-spi</module>
     </modules>
 
     <dependencies>
