@@ -1,8 +1,12 @@
 package com.freeing.rpc.serialization.api;
 
+import com.freeing.rpc.constants.RpcConstants;
+import com.freeing.rpc.spi.annotation.SPI;
+
 /**
  * 序列化接口
  */
+@SPI(RpcConstants.SERIALIZATION_JDK)
 public interface Serialization {
     /**
      * 序列化
