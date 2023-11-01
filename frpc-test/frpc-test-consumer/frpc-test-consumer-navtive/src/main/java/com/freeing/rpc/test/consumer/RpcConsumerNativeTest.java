@@ -10,7 +10,10 @@ import com.freeing.rpc.test.api.DemoService;
  */
 public class RpcConsumerNativeTest {
     public static void main(String[] args) {
-        RpcClient rpcClient = new RpcClient("1.0.0", "default", "jdk", 3000, false, false);
+        RpcClient rpcClient = new RpcClient("127.0.0.1:2181", "zookeeper",
+            "1.0.0",
+            "default", "jdk", 3000, false, false);
+
         DemoService demoService = rpcClient.create(DemoService.class);
         String result = demoService.hello("katou");
         System.out.println("返回的结果数据===>>> " + result);

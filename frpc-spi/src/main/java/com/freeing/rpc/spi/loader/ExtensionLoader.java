@@ -93,7 +93,9 @@ public class ExtensionLoader<T> {
      * @return 泛型实例
      */
     public static <T> T getExtension(final Class<T> clazz, String name) {
-        return StringUtils.isEmpty(name) ? getExtensionLoader(clazz).getDefaultSpiClassInstance() : getExtensionLoader(clazz).getSpiClassInstance(name);
+        return StringUtils.isEmpty(name) ?
+            getExtensionLoader(clazz).getDefaultSpiClassInstance() :
+            getExtensionLoader(clazz).getSpiClassInstance(name);
     }
 
     /**
