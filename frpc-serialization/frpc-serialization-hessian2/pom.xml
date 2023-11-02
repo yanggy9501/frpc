@@ -3,20 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>freeingrpc</artifactId>
+        <artifactId>frpc-serialization</artifactId>
         <groupId>com.freeing</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>frpc-serialization</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>frpc-serialization-api</module>
-        <module>frpc-serialization-jdk</module>
-        <module>frpc-serialization-json</module>
-        <module>frpc-serialization-hessian2</module>
-    </modules>
+    <artifactId>frpc-serialization-hessian2</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -24,4 +17,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.caucho</groupId>
+            <artifactId>hessian</artifactId>
+            <version>${hessian.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-serialization-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
