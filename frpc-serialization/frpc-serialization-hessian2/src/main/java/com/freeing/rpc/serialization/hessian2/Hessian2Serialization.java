@@ -4,6 +4,7 @@ import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
 import com.freeing.rpc.common.exception.SerializerException;
 import com.freeing.rpc.serialization.api.Serialization;
+import com.freeing.rpc.spi.annotation.SPIClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ import java.util.Objects;
 /**
  * @author yanggy
  */
+@SPIClass
 public class Hessian2Serialization implements Serialization {
     private static final Logger logger = LoggerFactory.getLogger(Hessian2Serialization.class);
 
