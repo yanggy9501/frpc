@@ -17,6 +17,7 @@
         <module>frpc-serialization-json</module>
         <module>frpc-serialization-hessian2</module>
         <module>frpc-serialization-kryo</module>
+        <module>frpc-serialization-protostuff</module>
     </modules>
 
     <properties>
