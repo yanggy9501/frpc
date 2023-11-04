@@ -29,5 +29,11 @@
             <artifactId>frpc-registry-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
