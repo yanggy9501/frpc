@@ -50,6 +50,7 @@
         <module>frpc-registry</module>
         <module>frpc-loadbalancer</module>
         <module>frpc-spi</module>
+        <module>frpc-reflect</module>
     </modules>
 
     <dependencies>
