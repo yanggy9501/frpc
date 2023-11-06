@@ -3,19 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>freeingrpc</artifactId>
+        <artifactId>frpc-loadbalancer</artifactId>
         <groupId>com.freeing</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>frpc-loadbalancer</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>frpc-loadbalancer-api</module>
-        <module>frpc-loadbalancer-random</module>
-        <module>frpc-loadbalancer-random-weight</module>
-    </modules>
+    <artifactId>frpc-loadbalancer-random-weight</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -23,5 +17,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-loadbalancer-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
