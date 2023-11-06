@@ -2,7 +2,6 @@ package com.freeing.rpc.provider.common.server.base;
 
 import com.freeing.rpc.codec.RpcDecoder;
 import com.freeing.rpc.codec.RpcEncoder;
-import com.freeing.rpc.constants.RpcConstants;
 import com.freeing.rpc.provider.common.handler.RpcProviderHandler;
 import com.freeing.rpc.provider.common.server.api.Server;
 import com.freeing.rpc.registry.api.RegistryService;
@@ -39,34 +38,33 @@ public class BaseServer implements Server {
      */
     protected int port = 27110;
 
-    protected String reflect = RpcConstants.REFLECT_TYPE_CGLIB;
-
     /**
      * 存储的是实体类关系
      */
     protected Map<String, Object> handlerMap = new HashMap<>();
+
+    private String reflectType;
 
     /**
      * 注册服务
      */
     protected RegistryService registryService;
 
-    public BaseServer(String serverAddress,  String registryAddress, String registryType, String reflectType){
+     public BaseServer(String serverAddress,  String registryAddress, String registryType, String registryLoadBalanceType, String reflectType){
         if (!StringUtils.isEmpty(serverAddress)){
             String[] serverArray = serverAddress.split(":");
             this.host = serverArray[0];
             this.port = Integer.parseInt(serverArray[1]);
         }
-        this.reflect = reflectType;
-        this.registryService = this.getRegistryService(registryAddress, registryType);
+        this.reflectType = reflectType;
+        this.registryService = this.getRegistryService(registryAddress, registryType, registryLoadBalanceType);
     }
 
-    private RegistryService getRegistryService(String registryAddress, String registryType) {
-        // TODO 后续扩展支持SPI
+    private RegistryService getRegistryService(String registryAddress, String registryType, String registryLoadBalanceType) {
         RegistryService registryService = null;
         try {
             registryService = new ZookeeperRegistryService();
-            registryService.init(new RegistryConfig(registryAddress, registryType));
+            registryService.init(new RegistryConfig(registryAddress, registryType, registryLoadBalanceType));
         }catch (Exception e){
             logger.error("RPC Server init error", e);
         }
@@ -79,7 +77,7 @@ public class BaseServer implements Server {
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {
-            logger.info("RPC Server provider start ...");
+            logger.info("RPC Server provider start.");
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
@@ -89,7 +87,7 @@ public class BaseServer implements Server {
                         socketChannel.pipeline()
                             .addLast(new RpcDecoder())
                             .addLast(new RpcEncoder())
-                            .addLast(new RpcProviderHandler(reflect, handlerMap));
+                            .addLast(new RpcProviderHandler(reflectType, handlerMap));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)

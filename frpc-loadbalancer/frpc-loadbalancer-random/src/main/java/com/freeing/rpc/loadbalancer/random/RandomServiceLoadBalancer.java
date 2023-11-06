@@ -1,6 +1,7 @@
 package com.freeing.rpc.loadbalancer.random;
 
 import com.freeing.loadbalancer.api.ServiceLoadBalancer;
+import com.freeing.rpc.spi.annotation.SPIClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,12 +13,13 @@ import java.util.Random;
  *
  * @author yanggy
  */
+@SPIClass
 public class RandomServiceLoadBalancer<T> implements ServiceLoadBalancer<T> {
-    private final Logger logger = LoggerFactory.getLogger(RandomServiceLoadBalancer.class);
+    private static final Logger logger = LoggerFactory.getLogger(RandomServiceLoadBalancer.class);
 
     @Override
     public T select(List<T> servers, int hashcode) {
-        logger.info("使用基于随机选举算法的负载均衡策略");
+        logger.info("select server base RandomServiceLoadBalancer.class");
         if (servers == null || servers.isEmpty()) {
             return null;
         }

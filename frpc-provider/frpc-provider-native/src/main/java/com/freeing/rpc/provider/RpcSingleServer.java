@@ -17,9 +17,10 @@ public class RpcSingleServer extends BaseServer {
     /**
      * 构造单机服务提供者，并完成服务的扫描和注册
      */
-    public RpcSingleServer(String serverAddress,  String registryAddress, String registryType, String scanPackage, String reflectType) {
+    public RpcSingleServer(String serverAddress,  String registryAddress, String registryType,
+            String registryLoadBalanceType, String scanPackage, String reflectType) {
         // 调用父类构造方法
-        super(serverAddress, registryAddress, registryType, reflectType);
+        super(serverAddress, registryAddress, registryType, registryLoadBalanceType, reflectType);
         try {
             this.handlerMap = RpcServiceScanner.doScanWithRpcServiceAnnotationFilterAndRegistryService(scanPackage, registryService, this.host, this.port);
         } catch (Exception e) {

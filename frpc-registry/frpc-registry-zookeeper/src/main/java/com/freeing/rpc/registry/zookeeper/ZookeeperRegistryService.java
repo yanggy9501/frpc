@@ -2,10 +2,11 @@ package com.freeing.rpc.registry.zookeeper;
 
 import com.freeing.loadbalancer.api.ServiceLoadBalancer;
 import com.freeing.rpc.common.helper.RpcServiceHelper;
-import com.freeing.rpc.loadbalancer.random.RandomServiceLoadBalancer;
 import com.freeing.rpc.protocol.meta.ServiceMeta;
 import com.freeing.rpc.registry.api.RegistryService;
 import com.freeing.rpc.registry.api.config.RegistryConfig;
+import com.freeing.rpc.spi.annotation.SPIClass;
+import com.freeing.rpc.spi.loader.ExtensionLoader;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
@@ -23,6 +24,7 @@ import java.util.List;
  *
  * @author yanggy
  */
+@SPIClass
 public class ZookeeperRegistryService implements RegistryService {
 
     public static final int BASE_SLEEP_TIME_MS = 100000;
@@ -50,7 +52,8 @@ public class ZookeeperRegistryService implements RegistryService {
             .basePath(ZK_BASE_PATH)
             .build();
         this.serviceDiscovery.start();
-        this.serviceLoadBalancer = new RandomServiceLoadBalancer<>();
+        // SPI 负载均衡
+        this.serviceLoadBalancer = ExtensionLoader.getExtension(ServiceLoadBalancer.class, registryConfig.getRegistryLoadBalanceType());
     }
 
     @Override
