@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 @SPIClass
 public class HashServiceLoadBalancer<T> implements ServiceLoadBalancer<T> {
-    private final Logger logger = LoggerFactory.getLogger(HashServiceLoadBalancer.class);
+    private static final Logger logger = LoggerFactory.getLogger(HashServiceLoadBalancer.class);
 
     @Override
     public T select(List<T> servers, int hashcode) {
