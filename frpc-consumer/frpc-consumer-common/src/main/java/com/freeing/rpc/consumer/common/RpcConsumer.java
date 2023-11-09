@@ -2,6 +2,7 @@ package com.freeing.rpc.consumer.common;
 
 import com.freeing.rpc.common.helper.RpcServiceHelper;
 import com.freeing.rpc.common.threadpool.ClientThreadPool;
+import com.freeing.rpc.common.utils.ip.IpUtils;
 import com.freeing.rpc.consumer.common.handler.RpcConsumerHandler;
 import com.freeing.rpc.consumer.common.initializer.RpcConsumerInitializer;
 import com.freeing.rpc.protocol.RpcProtocol;
@@ -34,11 +35,14 @@ public class RpcConsumer implements Consumer {
 
     private final EventLoopGroup eventLoopGroup;
 
+    private final String localIp;
+
     private static volatile RpcConsumer instance;
 
     private static Map<String, RpcConsumerHandler> handlerMap = new ConcurrentHashMap<>();
 
     private RpcConsumer() {
+        localIp = IpUtils.getLocalHostIp();
         bootstrap = new Bootstrap();
         eventLoopGroup = new NioEventLoopGroup(4);
         bootstrap.group(eventLoopGroup)
@@ -70,7 +74,7 @@ public class RpcConsumer implements Consumer {
             .buildServiceKey(request.getClassName(), request.getVersion(), request.getGroup());
         Object[] params = request.getParameters();
         int invokerHashCode =  (params == null || params.length <= 0) ? serviceKey.hashCode() : params[0].hashCode();
-        ServiceMeta serviceMeta = registryService.discovery(serviceKey, invokerHashCode);
+        ServiceMeta serviceMeta = registryService.discovery(serviceKey, invokerHashCode, localIp);
         if (Objects.nonNull(serviceMeta)) {
             RpcConsumerHandler handler = RpcConsumerHandlerHelper.get(serviceMeta);
             if (Objects.isNull(handler)) {

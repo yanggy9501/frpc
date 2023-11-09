@@ -21,7 +21,7 @@ public class RobinServiceLoadBalancer<T> implements ServiceLoadBalancer<T> {
     private final AtomicInteger nextIndex = new AtomicInteger();
 
     @Override
-    public T select(List<T> servers, int hashcode) {
+    public T select(List<T> servers, int hashcode, String sourceIp) {
         logger.info("select server base RobinServiceLoadBalancer.class");
         if (Objects.isNull(servers) || servers.isEmpty()) {
             return null;
