@@ -1,7 +1,9 @@
 package com.freeing.rpc.registry.zookeeper;
 
 import com.freeing.loadbalancer.api.ServiceLoadBalancer;
+import com.freeing.loadbalancer.helper.ServiceLoadBalancerHelper;
 import com.freeing.rpc.common.helper.RpcServiceHelper;
+import com.freeing.rpc.constants.RpcConstants;
 import com.freeing.rpc.protocol.meta.ServiceMeta;
 import com.freeing.rpc.registry.api.RegistryService;
 import com.freeing.rpc.registry.api.config.RegistryConfig;
@@ -18,6 +20,7 @@ import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 基于Zookeeper的注册服务
@@ -37,6 +40,8 @@ public class ZookeeperRegistryService implements RegistryService {
 
     private ServiceLoadBalancer<ServiceInstance<ServiceMeta>> serviceLoadBalancer;
 
+    private ServiceLoadBalancer<ServiceMeta> serviceEnhancedLoadBalancer;
+
     @Override
     public void init(RegistryConfig registryConfig) throws Exception {
         CuratorFramework client = CuratorFrameworkFactory.builder()
@@ -53,7 +58,14 @@ public class ZookeeperRegistryService implements RegistryService {
             .build();
         this.serviceDiscovery.start();
         // SPI 负载均衡
-        this.serviceLoadBalancer = ExtensionLoader.getExtension(ServiceLoadBalancer.class, registryConfig.getRegistryLoadBalanceType());
+        if (registryConfig.getRegistryLoadBalanceType().toLowerCase()
+                .contains(RpcConstants.SERVICE_ENHANCED_LOAD_BALANCER_PREFIX)) {
+            this.serviceEnhancedLoadBalancer =
+                ExtensionLoader.getExtension(ServiceLoadBalancer.class, registryConfig.getRegistryLoadBalanceType());
+        } else {
+            this.serviceLoadBalancer =
+                ExtensionLoader.getExtension(ServiceLoadBalancer.class, registryConfig.getRegistryLoadBalanceType());
+        }
     }
 
     @Override
@@ -83,16 +95,24 @@ public class ZookeeperRegistryService implements RegistryService {
     @Override
     public ServiceMeta discovery(String serviceName, int invokerHashCode, String sourceIp) throws Exception {
         Collection<ServiceInstance<ServiceMeta>> serviceInstances = serviceDiscovery.queryForInstances(serviceName);
-        ServiceInstance<ServiceMeta> instance = serviceLoadBalancer
-            .select((List<ServiceInstance<ServiceMeta>>) serviceInstances, invokerHashCode, sourceIp);
-        if (instance != null) {
-            return instance.getPayload();
+
+        if (Objects.nonNull(serviceLoadBalancer)) {
+            return getServiceMetaInstance(invokerHashCode, sourceIp, (List<ServiceInstance<ServiceMeta>>) serviceInstances);
         }
-        return null;
+        return this.serviceEnhancedLoadBalancer.select(ServiceLoadBalancerHelper
+            .getServiceMetaList((List<ServiceInstance<ServiceMeta>>) serviceInstances), invokerHashCode, sourceIp);
     }
 
     @Override
     public void destroy() throws IOException {
         serviceDiscovery.close();
+    }
+
+    private ServiceMeta getServiceMetaInstance(int invokerHashCode, String sourceIp, List<ServiceInstance<ServiceMeta>> serviceInstances) {
+        ServiceInstance<ServiceMeta> instance = this.serviceLoadBalancer.select(serviceInstances, invokerHashCode, sourceIp);
+        if (instance != null) {
+            return instance.getPayload();
+        }
+        return null;
     }
 }
