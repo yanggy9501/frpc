@@ -18,14 +18,17 @@ public class ZookeeperRegistryTest {
 
     @Before
     public void init() throws Exception {
-        RegistryConfig registryConfig = new RegistryConfig("127.0.0.1:2181", "zookeeper");
+        RegistryConfig registryConfig = new RegistryConfig("127.0.0.1:2181",
+            "zookeeper",
+            "random");
         this.registryService = new ZookeeperRegistryService();
         this.registryService.init(registryConfig);
         this.serviceMeta = new ServiceMeta(ZookeeperRegistryTest.class.getName(),
             "1.0.0",
             "default",
             "127.0.0.1",
-            8080);
+            8080,
+            1);
     }
 
     @Test
@@ -35,7 +38,7 @@ public class ZookeeperRegistryTest {
 
     @Test
     public void testDiscovery() throws Exception {
-        ServiceMeta discovery = this.registryService.discovery(RegistryService.class.getName(), "default".hashCode());
+        ServiceMeta discovery = this.registryService.discovery(RegistryService.class.getName(), "default".hashCode(), null);
         System.out.println(discovery);
     }
 }

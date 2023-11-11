@@ -45,31 +45,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
     protected void channelRead0(ChannelHandlerContext ctx, RpcProtocol<RpcRequest> protocol) throws Exception {
         ServerThreadPool.submit(() -> {
             RpcHeader header = protocol.getHeader();
-            // 将header中的消息类型设置为响应类型的消息
-            header.setMsgType((byte) RpcType.RESPONSE.getType());
-            RpcRequest request = protocol.getBody();
-
-            logger.debug("Receive request {}", header.getRequestId());
-
-            // 构建响应协议数
-            RpcProtocol<RpcResponse> responseRpcProtocol = new RpcProtocol<>();
-            RpcResponse response = new RpcResponse();
-
-            try {
-                Object result = handle(request);
-                response.setResult(result);
-                response.setOneway(request.getOneway());
-                response.setAsync(request.getAsync());
-                header.setStatus((byte)RpcStatus.SUCCESS.getCode());
-            } catch (Throwable t) {
-                response.setError(t.toString());
-                header.setStatus((byte) RpcStatus.FAIL.getCode());
-                logger.error("RPC Server handle request error", t);
-            }
-
-            responseRpcProtocol.setHeader(header);
-            responseRpcProtocol.setBody(response);
-
+            RpcProtocol<RpcResponse>  responseRpcProtocol = handlerMessage(protocol);
             ctx.writeAndFlush(responseRpcProtocol)
                 .addListener(new ChannelFutureListener() {
                     @Override
@@ -78,6 +54,56 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
                     }
                 });
         });
+    }
+
+    private RpcProtocol<RpcResponse> handlerMessage(RpcProtocol<RpcRequest> protocol) {
+        RpcProtocol<RpcResponse> responseRpcProtocol = null;
+        RpcHeader header = protocol.getHeader();
+        // 心跳消息
+        if (header.getMsgType() == RpcType.HEARTBEAT.getType()) {
+            responseRpcProtocol = handlerHeartbeatMessage(protocol, header);
+        }
+        // 请求消息
+        else if (header.getMsgType() == RpcType.REQUEST.getType()) {
+            responseRpcProtocol = handlerRequestMessage(protocol, header);
+        }
+        return responseRpcProtocol;
+    }
+
+    private RpcProtocol<RpcResponse> handlerRequestMessage(RpcProtocol<RpcRequest> protocol, RpcHeader header) {
+        header.setMsgType((byte) RpcType.RESPONSE.getType());
+        RpcRequest request = protocol.getBody();
+        logger.debug("Receive request " + header.getRequestId());
+        RpcProtocol<RpcResponse> responseRpcProtocol = new RpcProtocol<RpcResponse>();
+        RpcResponse response = new RpcResponse();
+        try {
+            Object result = handle(request);
+            response.setResult(result);
+            response.setAsync(request.getAsync());
+            response.setOneway(request.getOneway());
+            header.setStatus((byte) RpcStatus.SUCCESS.getCode());
+        } catch (Throwable t) {
+            response.setError(t.toString());
+            header.setStatus((byte) RpcStatus.FAIL.getCode());
+            logger.error("RPC Server handle request error",t);
+        }
+        responseRpcProtocol.setHeader(header);
+        responseRpcProtocol.setBody(response);
+        return responseRpcProtocol;
+    }
+
+    private RpcProtocol<RpcResponse> handlerHeartbeatMessage(RpcProtocol<RpcRequest> protocol, RpcHeader header) {
+        header.setMsgType((byte) RpcType.HEARTBEAT.getType());
+        RpcRequest request = protocol.getBody();
+        RpcProtocol<RpcResponse> responseRpcProtocol = new RpcProtocol<>();
+        RpcResponse rpcResponse = new RpcResponse();
+        rpcResponse.setResult(RpcConstants.HEARTBEAT_PONG);
+        rpcResponse.setAsync(request.getAsync());
+        rpcResponse.setOneway(request.getOneway());
+        header.setStatus((byte) RpcStatus.SUCCESS.getCode());
+        responseRpcProtocol.setHeader(header);
+        responseRpcProtocol.setBody(rpcResponse);
+        return responseRpcProtocol;
     }
 
     private Object handle(RpcRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -96,7 +122,6 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
         return invoeMehtod(serviceBean, serviceClass, methodName, parameterTypes, parameters);
     }
 
-    // TODO 目前使用JDK动态代理方式，此处埋点
     private Object invoeMehtod(Object serviceBean, Class<?> serviceClass, String methodName, Class<?>[] parameterTypes,
             Object[] parameters) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         switch(this.reflectType) {

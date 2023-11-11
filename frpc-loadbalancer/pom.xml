@@ -19,7 +19,7 @@
         <module>frpc-loadbalancer-round-robin-weight</module>
         <module>frpc-loadbalancer-hash</module>
         <module>frpc-loadbalancer-hash-weight</module>
-        <module>frpc-loadbalancer-sourceip-hase</module>
+        <module>frpc-loadbalancer-sourceip-hash</module>
         <module>frpc-loadbalancer-sourceip-hash-weight</module>
         <module>frpc-loadbalancer-random-weight-enhanced</module>
     </modules>

@@ -2,9 +2,11 @@ package com.freeing.rpc.registry.api;
 
 import com.freeing.rpc.protocol.meta.ServiceMeta;
 import com.freeing.rpc.registry.api.config.RegistryConfig;
+import com.freeing.rpc.spi.annotation.SPI;
 
 import java.io.IOException;
 
+@SPI
 public interface RegistryService {
 
     /** 服务注册

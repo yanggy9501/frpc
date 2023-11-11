@@ -8,7 +8,6 @@ import com.freeing.rpc.proxy.api.config.ProxyConfig;
 import com.freeing.rpc.proxy.api.object.ObjectProxy;
 import com.freeing.rpc.registry.api.RegistryService;
 import com.freeing.rpc.registry.api.config.RegistryConfig;
-import com.freeing.rpc.registry.zookeeper.ZookeeperRegistryService;
 import com.freeing.rpc.spi.loader.ExtensionLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -72,8 +71,8 @@ public class RpcClient {
         if (StringUtils.isEmpty(registryType)) {
             throw new IllegalArgumentException("registry type cant not be empty");
         }
-        //TODO 后续SPI扩展
-        RegistryService registryService = new ZookeeperRegistryService();
+
+        RegistryService registryService = ExtensionLoader.getExtension(RegistryService.class, registryType);
         try {
             registryService.init(new RegistryConfig(registryAddress, registryType, registryLoadBalanceType));
         } catch (Exception e) {
