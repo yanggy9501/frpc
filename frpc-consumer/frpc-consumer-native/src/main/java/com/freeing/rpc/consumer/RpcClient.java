@@ -56,7 +56,8 @@ public class RpcClient {
 
     private String proxy;
 
-    public RpcClient(String registryAddress, String registryType, String registryLoadBalanceType, String proxy, String serviceVersion, String serviceGroup, String serializationType, long timeout, boolean async, boolean oneway) {
+    public RpcClient(String registryAddress, String registryType, String registryLoadBalanceType, String proxy,
+        String serviceVersion, String serviceGroup, String serializationType, long timeout, boolean async, boolean oneway) {
         this.serviceVersion = serviceVersion;
         this.timeout = timeout;
         this.proxy = proxy;
@@ -86,8 +87,16 @@ public class RpcClient {
     public <T> T create(Class<T> interfaceClass) {
         ProxyFactory proxyFactory = ExtensionLoader.getExtension(ProxyFactory.class, proxy);
         proxyFactory.init(new ProxyConfig<>(
-            interfaceClass, serviceVersion, serviceGroup, serializationType, timeout, registryService,
-            RpcConsumer.getInstance(), async, oneway));
+            interfaceClass,
+            serviceVersion,
+            serviceGroup,
+            serializationType,
+            timeout,
+            registryService,
+            RpcConsumer.getInstance(),
+            async,
+            oneway)
+        );
         return proxyFactory.getProxy(interfaceClass);
     }
 

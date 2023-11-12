@@ -61,7 +61,8 @@ public class ProxyConfig<T> implements Serializable {
     public ProxyConfig() {
     }
 
-    public ProxyConfig(Class<T> clazz, String serviceVersion, String serviceGroup, String serializationType, long timeout, RegistryService registryService, Consumer consumer, boolean async, boolean oneway) {
+    public ProxyConfig(Class<T> clazz, String serviceVersion, String serviceGroup, String serializationType,
+        long timeout, RegistryService registryService, Consumer consumer, boolean async, boolean oneway) {
         this.clazz = clazz;
         this.serviceVersion = serviceVersion;
         this.serviceGroup = serviceGroup;

@@ -10,9 +10,16 @@ import com.freeing.rpc.test.api.DemoService;
  */
 public class RpcConsumerNativeTest {
     public static void main(String[] args) {
-        RpcClient rpcClient = new RpcClient("127.0.0.1:2181", "zookeeper",
+        RpcClient rpcClient = new RpcClient("192.168.134.128:2181",
+            "zookeeper",
+            "random",
+            "jdk",
             "1.0.0",
-            "default", "kryo", 3000, false, false);
+            "default",
+            "jdk",
+            5000,
+            false,
+            false);
 
         DemoService demoService = rpcClient.create(DemoService.class);
         String result = demoService.hello("katou");

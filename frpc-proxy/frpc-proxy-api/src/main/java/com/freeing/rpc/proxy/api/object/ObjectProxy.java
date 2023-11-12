@@ -121,8 +121,7 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
 
         RPCFuture rpcFuture = this.consumer.sendRequest(requestRpcProtocol, registryService);
 
-        return rpcFuture == null
-            ? null : timeout > 0 ? rpcFuture.get(timeout, TimeUnit.MILLISECONDS) : rpcFuture.get();
+        return rpcFuture == null ? null : timeout > 0 ? rpcFuture.get(timeout, TimeUnit.MILLISECONDS) : rpcFuture.get();
     }
 
     @Override
