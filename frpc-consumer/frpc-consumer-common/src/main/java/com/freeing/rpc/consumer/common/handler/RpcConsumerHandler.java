@@ -3,6 +3,7 @@ package com.freeing.rpc.consumer.common.handler;
 import com.alibaba.fastjson.JSON;
 import com.freeing.rpc.consumer.common.context.RpcContext;
 import com.freeing.rpc.protocol.RpcProtocol;
+import com.freeing.rpc.protocol.enumeration.RpcType;
 import com.freeing.rpc.protocol.header.RpcHeader;
 import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.protocol.response.RpcResponse;
@@ -57,12 +58,30 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
             return;
         }
         logger.info("服务消费者收到服务过提供者的数据 ===>>> {}", JSON.toJSONString(protocol));
+        handlerMessage(protocol);
+    }
+
+    private void handlerMessage(RpcProtocol<RpcResponse> protocol) {
         RpcHeader header = protocol.getHeader();
+        // 服务提供者响应的心跳消息
+        if (header.getMsgType() == RpcType.HEARTBEAT_TO_CONSUMER.getType()) {
+            handlerHearbeatMessage(protocol);
+        }
+        // 服务器响应数据
+        else if (header.getMsgType() == RpcType.RESPONSE.getType()) {
+            handlerResponseMessage(protocol, header);
+        }
+    }
+
+    private void handlerHearbeatMessage(RpcProtocol<RpcResponse> protocol) {
+        // 此处简单打印即可 ,实际场景可不做处理
+        logger.info("receive service provider heartbeat message: {}", protocol.getBody().getResult());
+    }
+
+    private void handlerResponseMessage(RpcProtocol<RpcResponse> protocol, RpcHeader header) {
         long requestId = header.getRequestId();
-        // 接收到响应，则为 Future 进行处理
         RPCFuture rpcFuture = pendingRPC.remove(requestId);
-        if (Objects.nonNull(rpcFuture)) {
-            // 异步 Future 回调处理
+        if (rpcFuture != null){
             rpcFuture.done(protocol);
         }
     }

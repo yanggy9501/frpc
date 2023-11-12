@@ -60,11 +60,12 @@ public class RpcDecoder extends ByteToMessageDecoder implements RpcCodec {
         header.setSerializationType(serializationType);
         header.setMsgLen(dataLength);
 
-        // TODO Serialization是扩展点
         Serialization serialization = getSerialization(serializationType);
 
         switch (rpcType) {
-            case REQUEST: {
+            case REQUEST:
+            case HEARTBEAT_FROM_CONSUMER:
+            case HEARTBEAT_FROM_PROVIDER: {
                 RpcRequest request = serialization.deserialize(data, RpcRequest.class);
                 if (request != null) {
                     RpcProtocol<RpcRequest> protocol = new RpcProtocol<>();
@@ -74,7 +75,9 @@ public class RpcDecoder extends ByteToMessageDecoder implements RpcCodec {
                 }
                 break;
             }
-            case RESPONSE: {
+            case RESPONSE:
+            case HEARTBEAT_TO_CONSUMER:
+            case HEARTBEAT_TO_PROVIDER: {
                 RpcResponse response = serialization.deserialize(data, RpcResponse.class);
                 if (response != null) {
                     RpcProtocol<RpcResponse> protocol = new RpcProtocol<>();
@@ -82,10 +85,6 @@ public class RpcDecoder extends ByteToMessageDecoder implements RpcCodec {
                     protocol.setBody(response);
                     out.add(protocol);
                 }
-                break;
-            }
-            case HEARTBEAT: {
-                // TODO
                 break;
             }
         }

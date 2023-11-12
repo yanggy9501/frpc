@@ -60,7 +60,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
         RpcProtocol<RpcResponse> responseRpcProtocol = null;
         RpcHeader header = protocol.getHeader();
         // 心跳消息
-        if (header.getMsgType() == RpcType.HEARTBEAT.getType()) {
+        if (header.getMsgType() == RpcType.HEARTBEAT_FROM_CONSUMER.getType()) {
             responseRpcProtocol = handlerHeartbeatMessage(protocol, header);
         }
         // 请求消息
@@ -93,7 +93,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
     }
 
     private RpcProtocol<RpcResponse> handlerHeartbeatMessage(RpcProtocol<RpcRequest> protocol, RpcHeader header) {
-        header.setMsgType((byte) RpcType.HEARTBEAT.getType());
+        header.setMsgType((byte) RpcType.HEARTBEAT_TO_CONSUMER.getType());
         RpcRequest request = protocol.getBody();
         RpcProtocol<RpcResponse> responseRpcProtocol = new RpcProtocol<>();
         RpcResponse rpcResponse = new RpcResponse();
