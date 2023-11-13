@@ -56,8 +56,19 @@ public class RpcClient {
 
     private String proxy;
 
+    /**
+     * 心跳间隔时间，默认30秒
+     */
+    private int heartbeatInterval;
+
+    /**
+     * 扫描空闲连接时间，默认60秒
+     */
+    private int scanNotActiveChannelInterval;
+
     public RpcClient(String registryAddress, String registryType, String registryLoadBalanceType, String proxy,
-        String serviceVersion, String serviceGroup, String serializationType, long timeout, boolean async, boolean oneway) {
+        String serviceVersion, String serviceGroup, String serializationType, long timeout, boolean async,
+        boolean oneway, int heartbeatInterval, int scanNotActiveChannelInterval) {
         this.serviceVersion = serviceVersion;
         this.timeout = timeout;
         this.proxy = proxy;
@@ -65,6 +76,8 @@ public class RpcClient {
         this.serializationType = serializationType;
         this.async = async;
         this.oneway = oneway;
+        this.heartbeatInterval = heartbeatInterval;
+        this.scanNotActiveChannelInterval = scanNotActiveChannelInterval;
         this.registryService = this.getRegistryService(registryAddress, registryType, registryLoadBalanceType);
     }
 
@@ -93,7 +106,7 @@ public class RpcClient {
             serializationType,
             timeout,
             registryService,
-            RpcConsumer.getInstance(),
+            RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval),
             async,
             oneway)
         );
@@ -102,10 +115,10 @@ public class RpcClient {
 
     public <T> IAsyncObjectProxy createAsync(Class<T> interfaceClass) {
         return new ObjectProxy<>(interfaceClass, serviceVersion, serviceGroup, serializationType, timeout, registryService,
-            RpcConsumer.getInstance(), async, oneway);
+            RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval), async, oneway);
     }
 
     public void shutdown() {
-        RpcConsumer.getInstance().close();
+        RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval).close();
     }
 }
