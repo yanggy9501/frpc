@@ -2,6 +2,7 @@ package com.freeing.rpc.proxy.api.object;
 
 import com.alibaba.fastjson.JSON;
 import com.freeing.rpc.protocol.RpcProtocol;
+import com.freeing.rpc.protocol.enumeration.RpcType;
 import com.freeing.rpc.protocol.header.RpcHeader;
 import com.freeing.rpc.protocol.header.RpcHeaderFactory;
 import com.freeing.rpc.protocol.request.RpcRequest;
@@ -104,7 +105,7 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
         }
 
         RpcProtocol<RpcRequest> requestRpcProtocol = new RpcProtocol<>();
-        requestRpcProtocol.setHeader(RpcHeaderFactory.getRequestHeader(this.serializationType));
+        requestRpcProtocol.setHeader(RpcHeaderFactory.getRequestHeader(this.serializationType, RpcType.REQUEST.getType()));
 
         RpcRequest request = new RpcRequest();
         request.setVersion(this.serviceVersion);
@@ -139,7 +140,7 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
     private RpcProtocol<RpcRequest> createRequest(String className, String methodName, Object[] args) {
         RpcProtocol<RpcRequest> requestRpcProtocol = new RpcProtocol<>();
 
-        RpcHeader header = RpcHeaderFactory.getRequestHeader(this.serializationType);
+        RpcHeader header = RpcHeaderFactory.getRequestHeader(this.serializationType, RpcType.REQUEST.getType());
         requestRpcProtocol.setHeader(header);
 
         RpcRequest request = new RpcRequest();

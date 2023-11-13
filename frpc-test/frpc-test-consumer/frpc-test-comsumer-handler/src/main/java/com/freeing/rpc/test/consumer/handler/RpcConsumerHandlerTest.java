@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.freeing.rpc.common.exception.RegistryException;
 import com.freeing.rpc.consumer.common.RpcConsumer;
 import com.freeing.rpc.protocol.RpcProtocol;
+import com.freeing.rpc.protocol.enumeration.RpcType;
 import com.freeing.rpc.protocol.header.RpcHeaderFactory;
 import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.proxy.api.callback.AsyncRPCCallback;
@@ -61,7 +62,7 @@ public class RpcConsumerHandlerTest {
 
     private static RpcProtocol<RpcRequest> getRpcRequestProtocol() {
         RpcProtocol<RpcRequest> protocol = new RpcProtocol<>();
-        protocol.setHeader(RpcHeaderFactory.getRequestHeader("jdk"));
+        protocol.setHeader(RpcHeaderFactory.getRequestHeader("jdk", RpcType.REQUEST.getType()));
         RpcRequest request = new RpcRequest();
         request.setClassName("com.freeing.rpc.test.api.DemoService");
         request.setGroup("default");

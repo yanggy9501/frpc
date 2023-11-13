@@ -5,6 +5,7 @@ import com.freeing.rpc.common.threadpool.ClientThreadPool;
 import com.freeing.rpc.common.utils.ip.IpUtils;
 import com.freeing.rpc.consumer.common.handler.RpcConsumerHandler;
 import com.freeing.rpc.consumer.common.initializer.RpcConsumerInitializer;
+import com.freeing.rpc.consumer.common.manager.ConsumerConnectionManager;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.meta.ServiceMeta;
 import com.freeing.rpc.protocol.request.RpcRequest;
@@ -22,9 +23,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
- * 服务消费者
+ * 服务消费者 netty client
  *
  * @author yanggy
  */
@@ -39,6 +43,8 @@ public class RpcConsumer implements Consumer {
 
     private static volatile RpcConsumer instance;
 
+    private ScheduledExecutorService executorService;
+
     private static Map<String, RpcConsumerHandler> handlerMap = new ConcurrentHashMap<>();
 
     private RpcConsumer() {
@@ -48,6 +54,8 @@ public class RpcConsumer implements Consumer {
         bootstrap.group(eventLoopGroup)
             .channel(NioSocketChannel.class)
             .handler(new RpcConsumerInitializer());
+        // TODO 启动心跳，后续优化
+        this.startHeartbeat();
     }
 
     public static RpcConsumer getInstance() {
@@ -102,5 +110,19 @@ public class RpcConsumer implements Consumer {
             }
         });
         return channelFuture.channel().pipeline().get(RpcConsumerHandler.class);
+    }
+
+    // 广播发送 ping 消息
+    private void startHeartbeat() {
+        executorService = Executors.newScheduledThreadPool(2);
+        // 扫描并处理所有不活跃的连接
+        executorService.scheduleAtFixedRate(() -> {
+           logger.info("schedule task to remove being not active channel");
+            ConsumerConnectionManager.scanNoTActiveChannel();
+        }, 10, 10, TimeUnit.SECONDS);
+
+        executorService.scheduleAtFixedRate(() -> {
+            logger.info("broadcast ping message to provider");
+        }, 3, 30, TimeUnit.SECONDS);
     }
 }
