@@ -24,7 +24,7 @@ public class RpcConsumerHandlerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcConsumerHandlerTest.class);
 
     public static void main(String[] args) throws Exception {
-        RpcConsumer consumer = RpcConsumer.getInstance();
+        RpcConsumer consumer = RpcConsumer.getInstance(5, 30);
         RPCFuture future = consumer.sendRequest(getRpcRequestProtocol(),
             getRegistryService("192.168.134.128:2181",
                 "zookeeper",
