@@ -20,6 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author yanggy
@@ -44,6 +47,11 @@ public class BaseServer implements Server {
     protected Map<String, Object> handlerMap = new HashMap<>();
 
     private String reflectType;
+
+    /**
+     * 心跳定时任务线程池
+     */
+    private ScheduledExecutorService executorService;
 
     /**
      * 注册服务
@@ -73,6 +81,8 @@ public class BaseServer implements Server {
 
     @Override
     public void startNettyServer() {
+         this.startHeartbeat();
+
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -100,5 +110,18 @@ public class BaseServer implements Server {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
+    }
+
+    private void startHeartbeat() {
+        executorService = Executors.newScheduledThreadPool(2);
+        executorService.scheduleAtFixedRate(() -> {
+//            logger.info("=============scanNotActiveChannel============");
+//            ProviderConnectionManager.scanNotActiveChannel();
+        }, 10, 6000, TimeUnit.MILLISECONDS);
+
+        executorService.scheduleAtFixedRate(()->{
+//            logger.info("=============broadcastPingMessageFromProvoder============");
+//            ProviderConnectionManager.broadcastPingMessageFromProvider();
+        }, 3, 3000, TimeUnit.MILLISECONDS);
     }
 }

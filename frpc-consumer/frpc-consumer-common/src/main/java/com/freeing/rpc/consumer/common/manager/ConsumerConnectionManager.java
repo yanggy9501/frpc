@@ -48,7 +48,7 @@ public class ConsumerConnectionManager {
         }
         // 请求头
         RpcHeader header = RpcHeaderFactory
-            .getRequestHeader(RpcConstants.SERIALIZATION_PROTOSTUFF, RpcType.HEARTBEAT_FROM_CONSUMER.getType());
+            .getRequestHeader(RpcConstants.SERIALIZATION_JDK, RpcType.HEARTBEAT_FROM_CONSUMER.getType());
 
         RpcProtocol<RpcRequest> protocol = new RpcProtocol<>();
         RpcRequest request = new RpcRequest();
@@ -60,7 +60,7 @@ public class ConsumerConnectionManager {
             if (channel.isOpen() && channel.isActive()) {
                 logger.info("send heartbeat message to service provider, the provider is: {}, the heartbeat message is: {}",
                     channel.remoteAddress(), RpcConstants.HEARTBEAT_PING);
-                channel.writeAndFlush(channel);
+                channel.writeAndFlush(protocol);
             }
         }
     }

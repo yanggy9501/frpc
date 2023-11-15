@@ -3,13 +3,15 @@ package com.freeing.rpc.test.consumer;
 import com.freeing.rpc.consumer.RpcClient;
 import com.freeing.rpc.test.api.DemoService;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 测试Java原生启动服务消费者
  *
  * @author yanggy
  */
 public class RpcConsumerNativeTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         RpcClient rpcClient = new RpcClient("192.168.134.128:2181",
             "zookeeper",
             "random",
@@ -24,6 +26,9 @@ public class RpcConsumerNativeTest {
         DemoService demoService = rpcClient.create(DemoService.class);
         String result = demoService.hello("katou");
         System.out.println("返回的结果数据===>>> " + result);
-        rpcClient.shutdown();
+//        rpcClient.shutdown();
+        while (true) {
+            TimeUnit.MINUTES.sleep(3);
+        }
     }
 }

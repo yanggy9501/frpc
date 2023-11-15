@@ -10,10 +10,8 @@ import com.freeing.rpc.protocol.enumeration.RpcType;
 import com.freeing.rpc.protocol.header.RpcHeader;
 import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.protocol.response.RpcResponse;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import com.freeing.rpc.provider.common.cache.ProviderChannelCache;
+import io.netty.channel.*;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
@@ -42,10 +40,16 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
     }
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        ProviderChannelCache.add(ctx.channel());
+    }
+
+    @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcProtocol<RpcRequest> protocol) throws Exception {
         ServerThreadPool.submit(() -> {
             RpcHeader header = protocol.getHeader();
-            RpcProtocol<RpcResponse>  responseRpcProtocol = handlerMessage(protocol);
+            RpcProtocol<RpcResponse>  responseRpcProtocol = handlerMessage(protocol, ctx.channel());
             ctx.writeAndFlush(responseRpcProtocol)
                 .addListener(new ChannelFutureListener() {
                     @Override
@@ -56,12 +60,16 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
         });
     }
 
-    private RpcProtocol<RpcResponse> handlerMessage(RpcProtocol<RpcRequest> protocol) {
+    private RpcProtocol<RpcResponse> handlerMessage(RpcProtocol<RpcRequest> protocol, Channel channel) {
         RpcProtocol<RpcResponse> responseRpcProtocol = null;
         RpcHeader header = protocol.getHeader();
-        // 心跳消息
+        // 接收到服务消费者发送的心跳消息
         if (header.getMsgType() == RpcType.HEARTBEAT_FROM_CONSUMER.getType()) {
-            responseRpcProtocol = handlerHeartbeatMessage(protocol, header);
+            responseRpcProtocol = handlerHeartbeatMessageFromConsumer(protocol, header);
+        }
+        //
+        else if(header.getMsgType() == RpcType.HEARTBEAT_TO_PROVIDER.getType()) {
+            handlerHeartbeatMessageToProvider(protocol, channel);
         }
         // 请求消息
         else if (header.getMsgType() == RpcType.REQUEST.getType()) {
@@ -93,7 +101,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
         return responseRpcProtocol;
     }
 
-    private RpcProtocol<RpcResponse> handlerHeartbeatMessage(RpcProtocol<RpcRequest> protocol, RpcHeader header) {
+    private RpcProtocol<RpcResponse> handlerHeartbeatMessageFromConsumer(RpcProtocol<RpcRequest> protocol, RpcHeader header) {
         logger.info("received consumer heartbeat message: {}", JSON.toJSONString(protocol));
         header.setMsgType((byte) RpcType.HEARTBEAT_TO_CONSUMER.getType());
         RpcRequest request = protocol.getBody();
@@ -106,6 +114,13 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
         responseRpcProtocol.setHeader(header);
         responseRpcProtocol.setBody(rpcResponse);
         return responseRpcProtocol;
+    }
+
+    /**
+     * 处理服务消费者响应的心跳消息
+     */
+    private void handlerHeartbeatMessageToProvider(RpcProtocol<RpcRequest> protocol, Channel channel) {
+        logger.info("receive service consumer heartbeat message, the consumer is: {}, the heartbeat message is: {}", channel.remoteAddress(), protocol.getBody().getParameters()[0]);
     }
 
     private Object handle(RpcRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {

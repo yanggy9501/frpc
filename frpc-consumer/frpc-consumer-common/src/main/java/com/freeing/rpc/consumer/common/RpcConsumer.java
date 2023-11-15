@@ -129,17 +129,20 @@ public class RpcConsumer implements Consumer {
         return channelFuture.channel().pipeline().get(RpcConsumerHandler.class);
     }
 
-    // 广播发送 ping 消息
+    /**
+     * 广播发送 ping 消息
+     */
     private void startHeartbeat() {
         executorService = Executors.newScheduledThreadPool(2);
         // 扫描并处理所有不活跃的连接
         executorService.scheduleAtFixedRate(() -> {
-           logger.info("schedule task to remove being not active channel");
+//            logger.info("=============scanNotActiveChannel============");
             ConsumerConnectionManager.scanNoTActiveChannel();
         }, 10, scanNotActiveChannelInterval, TimeUnit.SECONDS);
 
         executorService.scheduleAtFixedRate(() -> {
-            logger.info("broadcast ping message to provider");
+//            logger.info("=============broadcastPingMessageFromConsumer============");
+            ConsumerConnectionManager.broadcastPingMessageFromConsumer();
         }, 3, heartbeatInterval, TimeUnit.SECONDS);
     }
 }
