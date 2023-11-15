@@ -1,4 +1,4 @@
-package com.freeing.rpc.serilization;
+package com.freeing.rpc.serialization;
 
 import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
