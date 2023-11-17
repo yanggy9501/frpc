@@ -11,7 +11,9 @@ import com.freeing.rpc.protocol.header.RpcHeader;
 import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.protocol.response.RpcResponse;
 import com.freeing.rpc.provider.common.cache.ProviderChannelCache;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import io.netty.handler.timeout.IdleStateHandler;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
@@ -43,6 +45,34 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         ProviderChannelCache.add(ctx.channel());
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        ProviderChannelCache.remove(ctx.channel());
+    }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        super.channelUnregistered(ctx);
+        ProviderChannelCache.remove(ctx.channel());
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        // 如果是IdleStateEvent事件
+        if (evt instanceof IdleStateHandler) {
+            Channel channel = ctx.channel();
+            try {
+                logger.info("IdleStateEvent triggered, close channel " + channel.remoteAddress());
+                channel.close();
+            } finally {
+                channel.writeAndFlush(Unpooled.EMPTY_BUFFER)
+                    .addListener(ChannelFutureListener.CLOSE);
+            }
+        }
+        super.userEventTriggered(ctx, evt);
     }
 
     @Override
