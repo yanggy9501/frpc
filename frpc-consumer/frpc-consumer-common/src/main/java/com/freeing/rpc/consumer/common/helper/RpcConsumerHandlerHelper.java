@@ -1,4 +1,4 @@
-package com.freeing.rpc.consumer.common;
+package com.freeing.rpc.consumer.common.helper;
 
 import com.freeing.rpc.consumer.common.handler.RpcConsumerHandler;
 import com.freeing.rpc.protocol.meta.ServiceMeta;
@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * RpcConsumerHandler 工具类
+ *
  * @author yanggy
  */
 public class RpcConsumerHandlerHelper {
