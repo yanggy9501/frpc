@@ -3,21 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>freeingrpc</artifactId>
+        <artifactId>frpc-provider</artifactId>
         <groupId>com.freeing</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
-    <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>frpc-provider</artifactId>
-
-    <modules>
-        <module>frpc-provider-common</module>
-        <module>frpc-provider-native</module>
-        <module>frpc-provider-spring</module>
-    </modules>
+    <artifactId>frpc-provider-spring</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -26,10 +18,9 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>com.freeing</groupId>
-            <artifactId>frpc-common</artifactId>
+            <artifactId>frpc-provider-common</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
