@@ -51,6 +51,7 @@
         <module>frpc-loadbalancer</module>
         <module>frpc-spi</module>
         <module>frpc-reflect</module>
+        <module>frpc-demo</module>
     </modules>
 
     <dependencies>
