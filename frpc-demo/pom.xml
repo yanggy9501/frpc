@@ -17,6 +17,7 @@
         <module>frpc-demo-spring-annotation-provider</module>
         <module>frpc-demo-spring-xml-consumer</module>
         <module>frpc-demo-spring-annotation-consumer</module>
+        <module>frpc-demo-spring-boot-provider</module>
     </modules>
 
     <properties>
