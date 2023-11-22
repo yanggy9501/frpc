@@ -52,6 +52,7 @@
         <module>frpc-spi</module>
         <module>frpc-reflect</module>
         <module>frpc-demo</module>
+        <module>frpc-spring-boot-starter</module>
     </modules>
 
     <dependencies>
