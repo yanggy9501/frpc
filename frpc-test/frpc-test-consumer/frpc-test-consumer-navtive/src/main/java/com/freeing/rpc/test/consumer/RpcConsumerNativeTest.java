@@ -21,7 +21,7 @@ public class RpcConsumerNativeTest {
             "jdk",
             5000,
             false,
-            false, 5, 30);
+            false, 5, 30, 30, 3);
 
         DemoService demoService = rpcClient.create(DemoService.class);
         String result = demoService.hello("katou");

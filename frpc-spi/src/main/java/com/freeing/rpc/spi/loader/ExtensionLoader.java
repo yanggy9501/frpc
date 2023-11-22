@@ -177,7 +177,7 @@ public class ExtensionLoader<T> {
     private T createExtension(final String name) {
         Class<?> aClass = getExtensionClasses().get(name);
         if (Objects.isNull(aClass)) {
-            throw new IllegalArgumentException("name is error");
+            throw new IllegalArgumentException("spi name " + "[" + name + "]" + " is error");
         }
         Object o = spiClassInstances.get(aClass);
         if (Objects.isNull(o)) {
