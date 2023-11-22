@@ -23,8 +23,10 @@ import java.util.Map;
 public class RpcSpringServer extends BaseServer implements ApplicationContextAware, InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(RpcSpringServer.class);
 
-    public RpcSpringServer(String serverAddress, String registryAddress, String registryType, String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval) {
-        super(serverAddress, registryAddress, registryType, registryLoadBalanceType, reflectType, heartbeatInterval, scanNotActiveChannelInterval);
+    public RpcSpringServer(String serverAddress, String registryAddress, String registryType,
+        String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval) {
+        super(serverAddress, registryAddress, registryType, registryLoadBalanceType, reflectType,
+            heartbeatInterval, scanNotActiveChannelInterval);
     }
 
     @Override
@@ -41,7 +43,9 @@ public class RpcSpringServer extends BaseServer implements ApplicationContextAwa
                     port,
                     getWeight(rpcService.weight())
                 );
-                handlerMap.put(RpcServiceHelper.buildServiceKey(serviceMeta.getServiceName(), serviceMeta.getServiceVersion(), serviceMeta.getServiceGroup()), serviceBean);
+                // 将 spring 创建的 bean 作为最终的 bean；不需要自己去扫描
+                handlerMap.put(RpcServiceHelper.buildServiceKey(serviceMeta.getServiceName(), serviceMeta.getServiceVersion(), serviceMeta.getServiceGroup()),
+                    serviceBean);
                 try {
                     registryService.register(serviceMeta);
                 } catch (Exception e) {

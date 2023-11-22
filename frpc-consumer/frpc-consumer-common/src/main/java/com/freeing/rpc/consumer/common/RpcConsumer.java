@@ -4,6 +4,7 @@ import com.freeing.loadbalancer.context.ConnectionsContext;
 import com.freeing.rpc.common.helper.RpcServiceHelper;
 import com.freeing.rpc.common.threadpool.ClientThreadPool;
 import com.freeing.rpc.common.utils.ip.IpUtils;
+import com.freeing.rpc.constants.RpcConstants;
 import com.freeing.rpc.consumer.common.handler.RpcConsumerHandler;
 import com.freeing.rpc.consumer.common.helper.RpcConsumerHandlerHelper;
 import com.freeing.rpc.consumer.common.initializer.RpcConsumerInitializer;
@@ -53,12 +54,12 @@ public class RpcConsumer implements Consumer {
     /**
      * 重试间隔时间
      */
-    private final int retryInterval = 1000;
+    private int retryInterval = 1000;
 
     /**
      * 重试次数
      */
-    private final int retryTimes = 3;
+    private int retryTimes = 3;
 
 
     /**
@@ -76,14 +77,15 @@ public class RpcConsumer implements Consumer {
      */
     private int scanNotActiveChannelInterval = 60000;
 
-    private RpcConsumer(int heartbeatInterval, int scanNotActiveChannelInterval) {
+    private RpcConsumer(int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes) {
         if (heartbeatInterval > 0) {
             this.heartbeatInterval = heartbeatInterval;
         }
         if (scanNotActiveChannelInterval > 0) {
             this.scanNotActiveChannelInterval = scanNotActiveChannelInterval;
         }
-
+        this.retryInterval = retryInterval <= 0 ? RpcConstants.DEFAULT_RETRY_INTERVAL : retryInterval;
+        this.retryTimes = retryTimes <= 0 ? RpcConstants.DEFAULT_RETRY_TIMES : retryTimes;
         localIp = IpUtils.getLocalHostIp();
         bootstrap = new Bootstrap();
         eventLoopGroup = new NioEventLoopGroup(4);
@@ -94,11 +96,11 @@ public class RpcConsumer implements Consumer {
         this.startHeartbeat();
     }
 
-    public static RpcConsumer getInstance(int heartbeatInterval, int scanNotActiveChannelInterval) {
+    public static RpcConsumer getInstance(int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes) {
         if (instance == null){
             synchronized (RpcConsumer.class){
                 if (instance == null){
-                    instance = new RpcConsumer(heartbeatInterval, scanNotActiveChannelInterval);
+                    instance = new RpcConsumer(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes);
                 }
             }
         }

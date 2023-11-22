@@ -113,7 +113,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
         header.setMsgType((byte) RpcType.RESPONSE.getType());
         RpcRequest request = protocol.getBody();
         logger.debug("Receive request " + header.getRequestId());
-        RpcProtocol<RpcResponse> responseRpcProtocol = new RpcProtocol<RpcResponse>();
+        RpcProtocol<RpcResponse> responseRpcProtocol = new RpcProtocol<>();
         RpcResponse response = new RpcResponse();
         try {
             Object result = handle(request);

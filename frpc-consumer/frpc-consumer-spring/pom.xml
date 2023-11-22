@@ -3,19 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>freeingrpc</artifactId>
+        <artifactId>frpc-consumer</artifactId>
         <groupId>com.freeing</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>frpc-consumer</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>frpc-consumer-common</module>
-        <module>frpc-consumer-native</module>
-        <module>frpc-consumer-spring</module>
-    </modules>
+    <artifactId>frpc-consumer-spring</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -23,4 +17,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-consumer-native</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-annotation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
