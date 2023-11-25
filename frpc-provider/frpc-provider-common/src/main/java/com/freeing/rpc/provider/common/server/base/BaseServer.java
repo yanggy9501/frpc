@@ -4,7 +4,6 @@ import com.freeing.rpc.codec.RpcDecoder;
 import com.freeing.rpc.codec.RpcEncoder;
 import com.freeing.rpc.constants.RpcConstants;
 import com.freeing.rpc.provider.common.handler.RpcProviderHandler;
-import com.freeing.rpc.provider.common.manager.ProviderConnectionManager;
 import com.freeing.rpc.provider.common.server.api.Server;
 import com.freeing.rpc.registry.api.RegistryService;
 import com.freeing.rpc.registry.api.config.RegistryConfig;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 

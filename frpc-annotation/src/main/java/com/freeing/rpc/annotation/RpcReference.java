@@ -32,7 +32,7 @@ public @interface RpcReference {
     /**
      * 负载均衡策略，默认基于ZK的一致性Hash
      */
-    String loadBalanceType() default "zkconsistenthash";
+    String loadBalanceType() default "random";
 
     /**
      * 序列化类型，目前的类型包含：protostuff、kryo、json、jdk、hessian2、fst

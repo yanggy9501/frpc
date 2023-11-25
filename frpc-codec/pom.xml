@@ -29,5 +29,29 @@
             <artifactId>frpc-serialization-jdk</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-serialization-json</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-serialization-hessian2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-serialization-kryo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-serialization-protostuff</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

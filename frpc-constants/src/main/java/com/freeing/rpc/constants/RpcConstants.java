@@ -35,12 +35,10 @@ public class RpcConstants {
      * JDK动态代理
      */
     public static final String PROXY_JDK = "jdk";
-
     /**
      * javassist动态代理
      */
     public static final String PROXY_JAVASSIST = "javassist";
-
     /**
      * cglib动态代理
      */
@@ -55,22 +53,18 @@ public class RpcConstants {
      * zookeeper
      */
     public static final String REGISTRY_CENTER_ZOOKEEPER = "zookeeper";
-
     /**
      * nacos
      */
     public static final String REGISTRY_CENTER_NACOS = "nacos";
-
     /**
      * apoll
      */
     public static final String REGISTRY_CENTER_APOLL = "apoll";
-
     /**
      * etcd
      */
     public static final String REGISTRY_CENTER_ETCD = "etcd";
-
     /**
      * eureka
      */
@@ -80,37 +74,30 @@ public class RpcConstants {
      * protostuff 序列化
      */
     public static final String SERIALIZATION_PROTOSTUFF = "protostuff";
-
     /**
      * FST 序列化
      */
     public static final String SERIALIZATION_FST = "fst";
-
     /**
      * hessian2 序列化
      */
     public static final String SERIALIZATION_HESSIAN2 = "hessian2";
-
     /**
      * jdk 序列化
      */
     public static final String SERIALIZATION_JDK = "jdk";
-
     /**
      * json 序列化
      */
     public static final String SERIALIZATION_JSON = "json";
-
     /**
      * kryo 序列化
      */
     public static final String SERIALIZATION_KRYO = "kryo";
-
     /**
      * 基于ZK的一致性Hash负载均衡
      */
     public static final String SERVICE_LOAD_BALANCER_ZKCONSISTENTHASH = "zkconsistenthash";
-
     /**
      * 基于随机算法的负载均衡
      */
@@ -125,7 +112,6 @@ public class RpcConstants {
      * 最小权重
      */
     public static final int SERVICE_WEIGHT_MIN = 1;
-
     /**
      * 最大权重
      */
@@ -140,6 +126,7 @@ public class RpcConstants {
      * 心跳pong消息
      */
     public static final String HEARTBEAT_PONG = "pong";
+
 
     /**
      * decoder
@@ -166,7 +153,6 @@ public class RpcConstants {
      */
     public static final String CODEC_CLIENT_IDLE_HANDLER = "client-idle-handler";
 
-
     /**
      * 默认的重试时间间隔，1s
      */
@@ -176,4 +162,75 @@ public class RpcConstants {
      * 默认的重试次数，无限重试
      */
     public static final int DEFAULT_RETRY_TIMES = Integer.MAX_VALUE;
+
+
+    /**
+     * RPC框架默认版本号
+     */
+    public static final String RPC_COMMON_DEFAULT_VERSION = "1.0.0";
+
+    /**
+     * RPC框架默认的分组
+     */
+    public static final String RPC_COMMON_DEFAULT_GROUP = "";
+
+    /**
+     * RPC框架默认的心跳间隔时间
+     */
+    public static final int RPC_COMMON_DEFAULT_HEARTBEATINTERVAL = 30000;
+
+    /**
+     * 服务提供者默认的扫描并移除不活跃连接的间隔时间
+     */
+    public static final int RPC_COMMON_DEFAULT_SCANNOTACTIVECHANNELINTERVAL = 60000;
+
+    /**
+     * 服务消费者默认的注册中心类型
+     */
+    public static final String RPC_REFERENCE_DEFAULT_REGISTRYTYPE = "zookeeper";
+
+    /**
+     * 服务消费者默认的注册中心地址
+     */
+    public static final String RPC_REFERENCE_DEFAULT_REGISTRYADDRESS = "127.0.0.1:2181";
+
+    /**
+     * 服务消费者默认负载均衡类型
+     */
+    public static final String RPC_REFERENCE_DEFAULT_LOADBALANCETYPE = "zkconsistenthash";
+
+    /**
+     * 服务消费者默认的序列化方式
+     */
+    public static final String RPC_REFERENCE_DEFAULT_SERIALIZATIONTYPE = "protostuff";
+
+    /**
+     * 服务消费者默认的超时时间
+     */
+    public static final int RPC_REFERENCE_DEFAULT_TIMEOUT = 5000;
+
+    /**
+     * 服务消费者默认的代理
+     */
+    public static final String RPC_REFERENCE_DEFAULT_PROXY = "jdk";
+
+    /**
+     * 服务消费者默认的重试间隔时间
+     */
+    public static final int RPC_REFERENCE_DEFAULT_RETRYINTERVAL = 1000;
+
+    /**
+     * 服务消费者默认的重试次数
+     */
+    public static final int RPC_REFERENCE_DEFAULT_RETRYTIMES = 3;
+
+    /**
+     * 扫描结果缓存的时间间隔，默认为1秒，单位为毫秒
+     */
+    public static final int RPC_SCAN_RESULT_CACHE_TIME_INTERVAL = 1000;
+
+    /**
+     * 默认的结果缓存时长，默认5秒，单位是毫秒
+     */
+    public static final int RPC_SCAN_RESULT_CACHE_EXPIRE = 5000;
 }

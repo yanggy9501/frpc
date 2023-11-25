@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsumerDemoServiceImpl implements ConsumerDemoService {
 
-    @RpcReference(registryType = "zookeeper", registryAddress = "192.168.134.128:2181", loadBalanceType = "random",
-        version = "1.0.0", group = "default", serializationType = "protostuff",
+    @RpcReference(registryAddress = "192.168.134.128:2181",
+        version = "1.0.0", group = "default",
         proxy = "cglib", timeout = 30000, async = false, oneway = false)
     private DemoService demoService;
 

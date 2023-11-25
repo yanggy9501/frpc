@@ -37,6 +37,7 @@ public class ProtostuffSerialization implements Serialization {
                 schema = (Schema<T>) cachedSchema.get(clazz);
                 if (Objects.isNull(schema)) {
                     cachedSchema.put(clazz, RuntimeSchema.createFrom(clazz));
+                    schema = (Schema<T>) cachedSchema.get(clazz);
                 }
             }
         }

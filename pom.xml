@@ -53,6 +53,7 @@
         <module>frpc-reflect</module>
         <module>frpc-demo</module>
         <module>frpc-spring-boot-starter</module>
+        <module>frpc-cache</module>
     </modules>
 
     <dependencies>

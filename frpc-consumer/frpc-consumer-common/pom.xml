@@ -38,6 +38,12 @@
 
         <dependency>
             <groupId>com.freeing</groupId>
+            <artifactId>frpc-proxy-asm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
             <artifactId>frpc-registry-zookeeper</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -15,8 +15,7 @@ frpc:
     version: 1.0.0
     # group
     group: default
-    # zkconsistenthash
-    serializationType: random
+    serializationType: jdk
     # timeout
     timeout: 30000
     # async

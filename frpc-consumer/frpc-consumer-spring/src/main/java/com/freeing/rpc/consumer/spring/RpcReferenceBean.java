@@ -83,6 +83,7 @@ public class RpcReferenceBean implements FactoryBean<Object> {
     // 重试次数
     private int retryTimes = 3;
 
+    private RpcClient rpcClient;
 
     @Override
     public Object getObject() throws Exception {
@@ -218,8 +219,12 @@ public class RpcReferenceBean implements FactoryBean<Object> {
         this.retryTimes = retryTimes;
     }
 
+    public RpcClient getRpcClient() {
+        return rpcClient;
+    }
+
     @SuppressWarnings("unchecked")
-    public void init() throws Exception{
+    public void init() {
         RpcClient rpcClient = new RpcClient(registryAddress, registryType, loadBalanceType, proxy, version, group,
             serializationType,
             timeout, async, oneway, heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes);
