@@ -1,6 +1,8 @@
 package com.freeing.rpc.provider.common.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.freeing.fpc.chace.result.CacheResultKey;
+import com.freeing.fpc.chace.result.CacheResultManager;
 import com.freeing.rpc.common.helper.RpcServiceHelper;
 import com.freeing.rpc.common.threadpool.ServerThreadPool;
 import com.freeing.rpc.constants.RpcConstants;
@@ -36,9 +38,25 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
     private String reflectType;
     private final Map<String, Object> handlerMap;
 
-    public RpcProviderHandler(String reflectType, Map<String, Object> handlerMap){
+    /**
+     * 是否启用结果缓存
+     */
+    private final boolean enableResultCache;
+
+    /**
+     * 结果缓存管理器
+     */
+    private final CacheResultManager<RpcProtocol<RpcResponse>> cacheResultManager;
+
+    public RpcProviderHandler(String reflectType, Map<String, Object> handlerMap,
+        boolean enableResultCache, int resultCacheExpire){
         this.reflectType = reflectType;
         this.handlerMap = handlerMap;
+        this.enableResultCache = enableResultCache;
+        if (resultCacheExpire <= 0) {
+            resultCacheExpire = RpcConstants.RPC_SCAN_RESULT_CACHE_EXPIRE;
+        }
+        this.cacheResultManager = CacheResultManager.getInstance(resultCacheExpire, enableResultCache);
     }
 
     @Override
@@ -108,9 +126,36 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
         return responseRpcProtocol;
     }
 
+    private RpcProtocol<RpcResponse> handlerRequestMessageWithCache(RpcProtocol<RpcRequest> protocol, RpcHeader header) {
+        header.setMsgType((byte) RpcType.RESPONSE.getType());
+        if (enableResultCache) {
+            return handlerRequestMessageCache(protocol, header);
+        } else {
+            return handlerRequestMessage(protocol, header);
+        }
+    }
+
+    /**
+     * 处理缓存
+     */
+    private RpcProtocol<RpcResponse> handlerRequestMessageCache(RpcProtocol<RpcRequest> protocol, RpcHeader header) {
+        RpcRequest request = protocol.getBody();
+        CacheResultKey key = new CacheResultKey(request.getClassName(), request.getMethodName(), request.getParameterTypes(), request.getParameters(), request.getVersion(), request.getGroup());
+        RpcProtocol<RpcResponse> responseRpcProtocol = cacheResultManager.get(key);
+        if (Objects.isNull(responseRpcProtocol)) {
+            responseRpcProtocol = handlerRequestMessage(protocol, header);
+            // 缓存结果
+            key.setCacheTimeStamp(System.currentTimeMillis());
+            cacheResultManager.put(key, responseRpcProtocol);
+        } else {
+            logger.info("RpcProvider|命中缓存|{}", header.getRequestId());
+        }
+        responseRpcProtocol.setHeader(header);
+        return responseRpcProtocol;
+    }
+
     private RpcProtocol<RpcResponse> handlerRequestMessage(RpcProtocol<RpcRequest> protocol, RpcHeader header) {
         logger.info("received consumer request message: {}", JSON.toJSONString(protocol));
-        header.setMsgType((byte) RpcType.RESPONSE.getType());
         RpcRequest request = protocol.getBody();
         logger.debug("Receive request " + header.getRequestId());
         RpcProtocol<RpcResponse> responseRpcProtocol = new RpcProtocol<>();

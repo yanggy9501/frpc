@@ -48,11 +48,24 @@ public class CacheResultManager<T> {
      */
     private int resultCacheExpire;
 
+    private static volatile CacheResultManager instance;
+
     public CacheResultManager(int resultCacheExpire, boolean enableResultCache){
         this.resultCacheExpire = resultCacheExpire;
         if (enableResultCache){
             this.startScanTask();
         }
+    }
+
+    public static <T> CacheResultManager<T> getInstance(int resultCacheExpire, boolean enableResultCache) {
+        if (instance == null) {
+            synchronized (CacheResultManager.class) {
+                if (instance == null){
+                    instance = new CacheResultManager(resultCacheExpire, enableResultCache);
+                }
+            }
+        }
+        return instance;
     }
 
     private void startScanTask() {

@@ -4,6 +4,7 @@ import com.freeing.rpc.codec.RpcDecoder;
 import com.freeing.rpc.codec.RpcEncoder;
 import com.freeing.rpc.constants.RpcConstants;
 import com.freeing.rpc.provider.common.handler.RpcProviderHandler;
+import com.freeing.rpc.provider.common.manager.ProviderConnectionManager;
 import com.freeing.rpc.provider.common.server.api.Server;
 import com.freeing.rpc.registry.api.RegistryService;
 import com.freeing.rpc.registry.api.config.RegistryConfig;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -69,8 +71,19 @@ public class BaseServer implements Server {
      */
     private int scanNotActiveChannelInterval = 60000;
 
+    /**
+     * 是否开启结果缓存
+     */
+    private boolean enableResultCache;
+
+    /**
+     * 结果缓存过期时长，默认5秒
+     */
+    private int resultCacheExpire = 5000;
+
      public BaseServer(String serverAddress,  String registryAddress, String registryType,
-         String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval){
+         String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval,
+         boolean enableResultCache, int resultCacheExpire){
         if (!StringUtils.isEmpty(serverAddress)){
             String[] serverArray = serverAddress.split(":");
             this.host = serverArray[0];
@@ -84,7 +97,11 @@ public class BaseServer implements Server {
         }
         this.reflectType = reflectType;
         this.registryService = this.getRegistryService(registryAddress, registryType, registryLoadBalanceType);
-    }
+         if (resultCacheExpire > 0){
+             this.resultCacheExpire = resultCacheExpire;
+         }
+        this.enableResultCache = enableResultCache;
+     }
 
     private RegistryService getRegistryService(String registryAddress, String registryType, String registryLoadBalanceType) {
         RegistryService registryService = null;
@@ -117,7 +134,7 @@ public class BaseServer implements Server {
                             .addLast(RpcConstants.CODEC_ENCODER, new RpcEncoder())
                             .addLast(RpcConstants.CODEC_SERVER_IDLE_HANDLER,
                                 new IdleStateHandler(0, 0, heartbeatInterval, TimeUnit.MILLISECONDS))
-                            .addLast(RpcConstants.CODEC_HANDLER, new RpcProviderHandler(reflectType, handlerMap));
+                            .addLast(RpcConstants.CODEC_HANDLER, new RpcProviderHandler(reflectType, handlerMap, enableResultCache, resultCacheExpire));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)

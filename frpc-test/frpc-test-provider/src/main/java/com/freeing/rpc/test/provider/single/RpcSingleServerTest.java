@@ -16,7 +16,7 @@ public class RpcSingleServerTest {
             "zookeeper",
             "random",
             "com.freeing.rpc.test",
-            RpcConstants.REFLECT_TYPE_CGLIB, 10, 30);
+            RpcConstants.REFLECT_TYPE_CGLIB, 10, 30, true, 5000);
         singleServer.startNettyServer();
     }
 }
