@@ -1,6 +1,9 @@
 package com.freeing.rpc.proxy.api.object;
 
 import com.alibaba.fastjson.JSON;
+import com.freeing.fpc.chace.result.CacheResultKey;
+import com.freeing.fpc.chace.result.CacheResultManager;
+import com.freeing.rpc.constants.RpcConstants;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.enumeration.RpcType;
 import com.freeing.rpc.protocol.header.RpcHeader;
@@ -15,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -70,11 +74,15 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
      */
     private boolean oneway;
 
+    private boolean enableResultCache;
+
+    private CacheResultManager<Object> cacheResultManager;
+
     public ObjectProxy(Class<T> clazz) {
         this.clazz = clazz;
     }
 
-    public ObjectProxy(Class<T> clazz, String serviceVersion, String serviceGroup, String serializationType, long timeout, RegistryService registryService, Consumer consumer, boolean async, boolean oneway) {
+    public ObjectProxy(Class<T> clazz, String serviceVersion, String serviceGroup, String serializationType, long timeout, RegistryService registryService, Consumer consumer, boolean async, boolean oneway, boolean enableResultCache, int resultCacheExpire) {
         this.clazz = clazz;
         this.serviceVersion = serviceVersion;
         this.timeout = timeout;
@@ -84,6 +92,11 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
         this.async = async;
         this.oneway = oneway;
         this.registryService = registryService;
+        this.enableResultCache = enableResultCache;
+        if (resultCacheExpire <= 0){
+            resultCacheExpire = RpcConstants.RPC_SCAN_RESULT_CACHE_EXPIRE;
+        }
+        this.cacheResultManager = CacheResultManager.getInstance(resultCacheExpire, enableResultCache);
     }
 
     @Override
@@ -103,7 +116,27 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
                 throw new IllegalStateException(String.valueOf(method));
             }
         }
+        if (enableResultCache) {
+            return invokeSendRequestMethodCache(method, args);
+        } else {
+            return invokeSendRequestMethod(method, args);
+        }
+   }
 
+    private Object invokeSendRequestMethodCache(Method method, Object[] args) throws Exception {
+        CacheResultKey key = new CacheResultKey(method.getDeclaringClass().getName(), method.getName(), method.getParameterTypes(), args, serviceVersion, serviceGroup);
+        Object obj = this.cacheResultManager.get(key);
+        if (Objects.isNull(obj)) {
+            obj = invokeSendRequestMethod(method, args);
+            if (Objects.nonNull(obj)) {
+                key.setCacheTimeStamp(System.currentTimeMillis());
+                this.cacheResultManager.put(key, obj);
+            }
+        }
+        return obj;
+    }
+
+    private Object invokeSendRequestMethod(Method method, Object[] args) throws Exception {
         RpcProtocol<RpcRequest> requestRpcProtocol = new RpcProtocol<>();
         requestRpcProtocol.setHeader(RpcHeaderFactory.getRequestHeader(this.serializationType, RpcType.REQUEST.getType()));
 
@@ -123,6 +156,7 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
         RPCFuture rpcFuture = this.consumer.sendRequest(requestRpcProtocol, registryService);
 
         return rpcFuture == null ? null : timeout > 0 ? rpcFuture.get(timeout, TimeUnit.MILLISECONDS) : rpcFuture.get();
+
     }
 
     @Override

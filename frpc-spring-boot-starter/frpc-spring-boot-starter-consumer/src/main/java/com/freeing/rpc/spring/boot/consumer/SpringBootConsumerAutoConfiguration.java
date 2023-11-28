@@ -35,6 +35,9 @@ public class SpringBootConsumerAutoConfiguration {
             springBootConsumerConfig.getHeartbeatInterval(),
             springBootConsumerConfig.getScanNotActiveChannelInterval(),
             springBootConsumerConfig.getRetryInterval(),
-            springBootConsumerConfig.getRetryTimes());
+            springBootConsumerConfig.getRetryTimes(),
+            springBootConsumerConfig.getEnableResultCache(),
+            springBootConsumerConfig.getResultCacheExpire()
+            );
     }
 }

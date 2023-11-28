@@ -76,9 +76,20 @@ public class RpcClient {
      */
     private int retryTimes = 3;
 
+    /**
+     * 是否开启结果缓存
+     */
+    private boolean enableResultCache;
+
+    /**
+     * 缓存结果的时长，单位是毫秒
+     */
+    private int resultCacheExpire;
+
     public RpcClient(String registryAddress, String registryType, String registryLoadBalanceType, String proxy,
         String serviceVersion, String serviceGroup, String serializationType, long timeout, boolean async,
-        boolean oneway, int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes) {
+        boolean oneway, int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes,
+        boolean enableResultCache, int resultCacheExpire) {
         this.serviceVersion = serviceVersion;
         this.timeout = timeout;
         this.proxy = proxy;
@@ -90,6 +101,8 @@ public class RpcClient {
         this.scanNotActiveChannelInterval = scanNotActiveChannelInterval;
         this.retryInterval = retryInterval;
         this.retryTimes = retryTimes;
+        this.enableResultCache = enableResultCache;
+        this.resultCacheExpire = resultCacheExpire;
         this.registryService = this.getRegistryService(registryAddress, registryType, registryLoadBalanceType);
     }
 
@@ -120,14 +133,18 @@ public class RpcClient {
             registryService,
             RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes),
             async,
-            oneway)
+            oneway,
+            enableResultCache,
+            resultCacheExpire
+            )
         );
         return proxyFactory.getProxy(interfaceClass);
     }
 
     public <T> IAsyncObjectProxy createAsync(Class<T> interfaceClass) {
         return new ObjectProxy<>(interfaceClass, serviceVersion, serviceGroup, serializationType, timeout, registryService,
-            RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes), async, oneway);
+            RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes), async,
+            oneway, enableResultCache, resultCacheExpire);
     }
 
     public void shutdown() {
