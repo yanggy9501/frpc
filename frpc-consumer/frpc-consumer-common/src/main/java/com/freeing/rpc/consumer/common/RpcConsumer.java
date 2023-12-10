@@ -1,6 +1,7 @@
 package com.freeing.rpc.consumer.common;
 
 import com.freeing.loadbalancer.context.ConnectionsContext;
+import com.freeing.rpc.common.exception.RpcException;
 import com.freeing.rpc.common.helper.RpcServiceHelper;
 import com.freeing.rpc.common.threadpool.ClientThreadPool;
 import com.freeing.rpc.common.utils.ip.IpUtils;
@@ -20,6 +21,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +79,16 @@ public class RpcConsumer implements Consumer {
      */
     private int scanNotActiveChannelInterval = 60000;
 
+    /**
+     * 是否开启直连服务
+     */
+    private boolean enableDirectServer = false;
+
+    /**
+     * 直连服务的地址
+     */
+    private String directServerUrl;
+
     private RpcConsumer(int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes) {
         if (heartbeatInterval > 0) {
             this.heartbeatInterval = heartbeatInterval;
@@ -92,8 +104,50 @@ public class RpcConsumer implements Consumer {
         bootstrap.group(eventLoopGroup)
             .channel(NioSocketChannel.class)
             .handler(new RpcConsumerInitializer());
-        // TODO 启动心跳，后续优化
         this.startHeartbeat();
+    }
+
+    private RpcConsumer() {
+        localIp = IpUtils.getLocalHostIp();
+        bootstrap = new Bootstrap();
+        eventLoopGroup = new NioEventLoopGroup(4);
+        bootstrap.group(eventLoopGroup).channel(NioSocketChannel.class)
+            .handler(new RpcConsumerInitializer());
+        this.startHeartbeat();
+    }
+
+    public RpcConsumer setEnableDirectServer(boolean enableDirectServer) {
+        this.enableDirectServer = enableDirectServer;
+        return this;
+    }
+
+    public RpcConsumer setDirectServerUrl(String directServerUrl) {
+        this.directServerUrl = directServerUrl;
+        return this;
+    }
+
+    public RpcConsumer setHeartbeatInterval(int heartbeatInterval) {
+        if (heartbeatInterval > 0){
+            this.heartbeatInterval = heartbeatInterval;
+        }
+        return this;
+    }
+
+    public RpcConsumer setScanNotActiveChannelInterval(int scanNotActiveChannelInterval) {
+        if (scanNotActiveChannelInterval > 0){
+            this.scanNotActiveChannelInterval = scanNotActiveChannelInterval;
+        }
+        return this;
+    }
+
+    public RpcConsumer setRetryInterval(int retryInterval) {
+        this.retryInterval = retryInterval <= 0 ? RpcConstants.DEFAULT_RETRY_INTERVAL : retryInterval;
+        return this;
+    }
+
+    public RpcConsumer setRetryTimes(int retryTimes) {
+        this.retryTimes = retryTimes <= 0 ? RpcConstants.DEFAULT_RETRY_TIMES : retryTimes;
+        return this;
     }
 
     public static RpcConsumer getInstance(int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes) {
@@ -120,7 +174,7 @@ public class RpcConsumer implements Consumer {
             .buildServiceKey(request.getClassName(), request.getVersion(), request.getGroup());
         Object[] params = request.getParameters();
         int invokerHashCode =  (params == null || params.length <= 0) ? serviceKey.hashCode() : params[0].hashCode();
-        ServiceMeta serviceMeta = this.getServiceMetaWithRetry(registryService, serviceKey, invokerHashCode);
+        ServiceMeta serviceMeta = this.getDirectServiceMetaOrWithRetry(registryService, serviceKey, invokerHashCode);
 
         RpcConsumerHandler handler = null;
         if (Objects.nonNull(serviceMeta)) {
@@ -131,6 +185,21 @@ public class RpcConsumer implements Consumer {
             rpcFuture = handler.sendRequest(protocol, request.getAsync(), request.getOneway());
         }
         return rpcFuture;
+    }
+
+    private ServiceMeta getDirectServiceMeta() {
+        if (StringUtils.isEmpty(directServerUrl)) {
+            throw new RpcException("direct server url is null.");
+        }
+        if (!directServerUrl.contains(RpcConstants.IP_PORT_SPLIT)) {
+            throw new RpcException("direct server url not contains ':'");
+        }
+        logger.info("服务消费者直连服务提供者===>>> {}", directServerUrl);
+        ServiceMeta serviceMeta = new ServiceMeta();
+        String[] directServerUrlArray = directServerUrl.split(RpcConstants.IP_PORT_SPLIT);
+        serviceMeta.setServiceAddr(directServerUrlArray[0]);
+        serviceMeta.setServicePort(Integer.parseInt(directServerUrlArray[1]));
+        return serviceMeta;
     }
 
     /**
@@ -176,6 +245,19 @@ public class RpcConsumer implements Consumer {
             }
         });
         return channelFuture.channel().pipeline().get(RpcConsumerHandler.class);
+    }
+
+    /**
+     * 直连服务提供者或者结合重试获取服务元数据信息
+     */
+    private ServiceMeta getDirectServiceMetaOrWithRetry(RegistryService registryService, String serviceKey, int invokerHashCode) throws Exception {
+        ServiceMeta serviceMeta;
+        if (enableDirectServer) {
+            serviceMeta = this.getDirectServiceMeta();
+        } else {
+            serviceMeta = getServiceMetaWithRetry(registryService, serviceKey, invokerHashCode);
+        }
+        return serviceMeta;
     }
 
     /**
