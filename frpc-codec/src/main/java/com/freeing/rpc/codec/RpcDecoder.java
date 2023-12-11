@@ -2,6 +2,7 @@ package com.freeing.rpc.codec;
 
 import com.freeing.rpc.common.utils.SerializationUtils;
 import com.freeing.rpc.constants.RpcConstants;
+import com.freeing.rpc.flow.processor.FlowPostProcessor;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.enumeration.RpcType;
 import com.freeing.rpc.protocol.header.RpcHeader;
@@ -19,6 +20,13 @@ import java.util.List;
  * @author yanggy
  */
 public class RpcDecoder extends ByteToMessageDecoder implements RpcCodec {
+
+    private FlowPostProcessor postProcessor;
+
+    public RpcDecoder(FlowPostProcessor postProcessor){
+        this.postProcessor = postProcessor;
+    }
+
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf in, List<Object> out) throws Exception {
         if (in.readableBytes() < RpcConstants.HEADER_TOTAL_LEN) {
@@ -92,5 +100,7 @@ public class RpcDecoder extends ByteToMessageDecoder implements RpcCodec {
                 break;
             }
         }
+
+        this.postFlowProcessor(postProcessor, header);
     }
 }

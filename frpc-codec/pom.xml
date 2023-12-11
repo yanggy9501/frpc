@@ -53,5 +53,15 @@
             <artifactId>frpc-serialization-protostuff</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-flow-print</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-threadpool</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -54,6 +54,10 @@
         <module>frpc-demo</module>
         <module>frpc-spring-boot-starter</module>
         <module>frpc-cache</module>
+        <module>frpc-flow</module>
+        <module>frpc-threadpool</module>
+        <module>frpc-connection</module>
+        <module>frpc-disuse</module>
     </modules>
 
     <dependencies>

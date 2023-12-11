@@ -238,4 +238,35 @@ public class RpcConstants {
      * IP和端口的分隔符
      */
     public static final String IP_PORT_SPLIT = ":";
+
+    /**
+     * 默认的核心线程数
+     */
+    public static final int DEFAULT_CORE_POOL_SIZE = 16;
+
+    /**
+     * 默认的最大线程数
+     */
+    public static final int DEFAULT_MAXI_NUM_POOL_SIZE = 16;
+
+    /**
+     * 默认空闲保持时间
+     */
+    public static final long DEFAULT_KEEP_ALIVE_TIME = 600;
+
+    /**
+     * 线程池队列最大容量
+     */
+    public static final int DEFAULT_QUEUE_CAPACITY = 65536;
+
+    /**
+     * 打印流量
+     */
+    public static final String FLOW_POST_PROCESSOR_PRINT = "print";
+
+    /**
+     * 默认策略
+     */
+    public static final String RPC_CONNECTION_DISUSE_STRATEGY_DEFAULT = "strategy_default";
+
 }

@@ -3,6 +3,7 @@ package com.freeing.rpc.provider.common.server.base;
 import com.freeing.rpc.codec.RpcDecoder;
 import com.freeing.rpc.codec.RpcEncoder;
 import com.freeing.rpc.constants.RpcConstants;
+import com.freeing.rpc.flow.processor.FlowPostProcessor;
 import com.freeing.rpc.provider.common.handler.RpcProviderHandler;
 import com.freeing.rpc.provider.common.manager.ProviderConnectionManager;
 import com.freeing.rpc.provider.common.server.api.Server;
@@ -81,27 +82,46 @@ public class BaseServer implements Server {
      */
     private int resultCacheExpire = 5000;
 
-     public BaseServer(String serverAddress,  String registryAddress, String registryType,
-         String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval,
-         boolean enableResultCache, int resultCacheExpire){
-        if (!StringUtils.isEmpty(serverAddress)){
+    /**
+     * 流控分析后置处理器
+     */
+    private FlowPostProcessor flowPostProcessor;
+
+    /**
+     * 最大连接限制
+     */
+    private int maxConnections;
+
+    /**
+     * 拒绝策略类型
+     */
+    private String disuseStrategyType;
+
+    public BaseServer(String serverAddress, String registryAddress, String registryType,
+        String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval,
+        boolean enableResultCache, int resultCacheExpire, String flowType,
+        int maxConnections, String disuseStrategyType) {
+        if (!StringUtils.isEmpty(serverAddress)) {
             String[] serverArray = serverAddress.split(":");
             this.host = serverArray[0];
             this.port = Integer.parseInt(serverArray[1]);
         }
         if (heartbeatInterval > 0) {
-            this.heartbeatInterval =heartbeatInterval;
+            this.heartbeatInterval = heartbeatInterval;
         }
         if (scanNotActiveChannelInterval > 0) {
             this.scanNotActiveChannelInterval = scanNotActiveChannelInterval;
         }
         this.reflectType = reflectType;
         this.registryService = this.getRegistryService(registryAddress, registryType, registryLoadBalanceType);
-         if (resultCacheExpire > 0){
-             this.resultCacheExpire = resultCacheExpire;
-         }
+        if (resultCacheExpire > 0) {
+            this.resultCacheExpire = resultCacheExpire;
+        }
         this.enableResultCache = enableResultCache;
-     }
+        this.flowPostProcessor = ExtensionLoader.getExtension(FlowPostProcessor.class, flowType);
+        this.maxConnections = maxConnections;
+        this.disuseStrategyType = disuseStrategyType;
+    }
 
     private RegistryService getRegistryService(String registryAddress, String registryType, String registryLoadBalanceType) {
         RegistryService registryService = null;
@@ -130,11 +150,11 @@ public class BaseServer implements Server {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline()
-                            .addLast(RpcConstants.CODEC_DECODER, new RpcDecoder())
-                            .addLast(RpcConstants.CODEC_ENCODER, new RpcEncoder())
+                            .addLast(RpcConstants.CODEC_DECODER, new RpcDecoder(flowPostProcessor))
+                            .addLast(RpcConstants.CODEC_ENCODER, new RpcEncoder(flowPostProcessor))
                             .addLast(RpcConstants.CODEC_SERVER_IDLE_HANDLER,
                                 new IdleStateHandler(0, 0, heartbeatInterval, TimeUnit.MILLISECONDS))
-                            .addLast(RpcConstants.CODEC_HANDLER, new RpcProviderHandler(reflectType, handlerMap, enableResultCache, resultCacheExpire));
+                            .addLast(RpcConstants.CODEC_HANDLER, new RpcProviderHandler(reflectType, handlerMap, enableResultCache, resultCacheExpire, maxConnections, disuseStrategyType));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)

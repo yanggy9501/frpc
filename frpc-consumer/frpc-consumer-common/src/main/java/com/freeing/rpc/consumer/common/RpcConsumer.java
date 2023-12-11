@@ -10,12 +10,15 @@ import com.freeing.rpc.consumer.common.handler.RpcConsumerHandler;
 import com.freeing.rpc.consumer.common.helper.RpcConsumerHandlerHelper;
 import com.freeing.rpc.consumer.common.initializer.RpcConsumerInitializer;
 import com.freeing.rpc.consumer.common.manager.ConsumerConnectionManager;
+import com.freeing.rpc.flow.processor.FlowPostProcessor;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.meta.ServiceMeta;
 import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.proxy.api.consumer.Consumer;
 import com.freeing.rpc.proxy.api.future.RPCFuture;
 import com.freeing.rpc.registry.api.RegistryService;
+import com.freeing.rpc.spi.loader.ExtensionLoader;
+import com.freeing.rpc.threadpool.ConcurrentThreadPool;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -89,6 +92,12 @@ public class RpcConsumer implements Consumer {
      */
     private String directServerUrl;
 
+    // 并发处理线程池
+    private ConcurrentThreadPool concurrentThreadPool = ConcurrentThreadPool.getInstance(8, 8);
+
+    // 流控分析后置处理器
+    private FlowPostProcessor flowPostProcessor =  ExtensionLoader.getExtension(FlowPostProcessor.class, RpcConstants.FLOW_POST_PROCESSOR_PRINT);
+
     private RpcConsumer(int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes) {
         if (heartbeatInterval > 0) {
             this.heartbeatInterval = heartbeatInterval;
@@ -103,7 +112,7 @@ public class RpcConsumer implements Consumer {
         eventLoopGroup = new NioEventLoopGroup(4);
         bootstrap.group(eventLoopGroup)
             .channel(NioSocketChannel.class)
-            .handler(new RpcConsumerInitializer());
+            .handler(new RpcConsumerInitializer(heartbeatInterval, concurrentThreadPool, flowPostProcessor));
         this.startHeartbeat();
     }
 
@@ -112,7 +121,7 @@ public class RpcConsumer implements Consumer {
         bootstrap = new Bootstrap();
         eventLoopGroup = new NioEventLoopGroup(4);
         bootstrap.group(eventLoopGroup).channel(NioSocketChannel.class)
-            .handler(new RpcConsumerInitializer());
+            .handler(new RpcConsumerInitializer(heartbeatInterval, concurrentThreadPool, flowPostProcessor));
         this.startHeartbeat();
     }
 
@@ -317,5 +326,93 @@ public class RpcConsumer implements Consumer {
 //            logger.info("=============broadcastPingMessageFromConsumer============");
             ConsumerConnectionManager.broadcastPingMessageFromConsumer();
         }, 3, heartbeatInterval, TimeUnit.SECONDS);
+    }
+
+    public Bootstrap getBootstrap() {
+        return bootstrap;
+    }
+
+    public EventLoopGroup getEventLoopGroup() {
+        return eventLoopGroup;
+    }
+
+    public String getLocalIp() {
+        return localIp;
+    }
+
+    public static RpcConsumer getInstance() {
+        return instance;
+    }
+
+    public static void setInstance(RpcConsumer instance) {
+        RpcConsumer.instance = instance;
+    }
+
+    public ScheduledExecutorService getExecutorService() {
+        return executorService;
+    }
+
+    public void setExecutorService(ScheduledExecutorService executorService) {
+        this.executorService = executorService;
+    }
+
+    public static Map<String, RpcConsumerHandler> getHandlerMap() {
+        return handlerMap;
+    }
+
+    public static void setHandlerMap(Map<String, RpcConsumerHandler> handlerMap) {
+        RpcConsumer.handlerMap = handlerMap;
+    }
+
+    public int getRetryInterval() {
+        return retryInterval;
+    }
+
+    public int getRetryTimes() {
+        return retryTimes;
+    }
+
+    public int getCurrentConnectRetryTimes() {
+        return currentConnectRetryTimes;
+    }
+
+    public void setCurrentConnectRetryTimes(int currentConnectRetryTimes) {
+        this.currentConnectRetryTimes = currentConnectRetryTimes;
+    }
+
+    public int getHeartbeatInterval() {
+        return heartbeatInterval;
+    }
+
+    public int getScanNotActiveChannelInterval() {
+        return scanNotActiveChannelInterval;
+    }
+
+    public boolean isEnableDirectServer() {
+        return enableDirectServer;
+    }
+
+    public String getDirectServerUrl() {
+        return directServerUrl;
+    }
+
+    public ConcurrentThreadPool getConcurrentThreadPool() {
+        return concurrentThreadPool;
+    }
+
+    public void setConcurrentThreadPool(ConcurrentThreadPool concurrentThreadPool) {
+        this.concurrentThreadPool = concurrentThreadPool;
+    }
+
+    public FlowPostProcessor getFlowPostProcessor() {
+        return flowPostProcessor;
+    }
+
+    public RpcConsumer setFlowPostProcessor(String flowType){
+        if (StringUtils.isEmpty(flowType)){
+            flowType = RpcConstants.FLOW_POST_PROCESSOR_PRINT;
+        }
+        this.flowPostProcessor = ExtensionLoader.getExtension(FlowPostProcessor.class, flowType);
+        return this;
     }
 }

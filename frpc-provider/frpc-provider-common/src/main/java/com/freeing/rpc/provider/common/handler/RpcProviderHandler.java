@@ -5,6 +5,7 @@ import com.freeing.fpc.chace.result.CacheResultKey;
 import com.freeing.fpc.chace.result.CacheResultManager;
 import com.freeing.rpc.common.helper.RpcServiceHelper;
 import com.freeing.rpc.common.threadpool.ServerThreadPool;
+import com.freeing.rpc.connection.manager.ConnectionManager;
 import com.freeing.rpc.constants.RpcConstants;
 import com.freeing.rpc.protocol.RpcProtocol;
 import com.freeing.rpc.protocol.enumeration.RpcStatus;
@@ -13,6 +14,7 @@ import com.freeing.rpc.protocol.header.RpcHeader;
 import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.protocol.response.RpcResponse;
 import com.freeing.rpc.provider.common.cache.ProviderChannelCache;
+import com.freeing.rpc.threadpool.ConcurrentThreadPool;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -48,8 +50,19 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
      */
     private final CacheResultManager<RpcProtocol<RpcResponse>> cacheResultManager;
 
+
+    /**
+     * 线程池
+     */
+    private final ConcurrentThreadPool concurrentThreadPool = ConcurrentThreadPool.getInstance(8, 8);
+
+    /**
+     * 连接管理器
+     */
+    private ConnectionManager connectionManager;
+
     public RpcProviderHandler(String reflectType, Map<String, Object> handlerMap,
-        boolean enableResultCache, int resultCacheExpire){
+        boolean enableResultCache, int resultCacheExpire, int maxConnections, String disuseStrategyType){
         this.reflectType = reflectType;
         this.handlerMap = handlerMap;
         this.enableResultCache = enableResultCache;
@@ -57,6 +70,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
             resultCacheExpire = RpcConstants.RPC_SCAN_RESULT_CACHE_EXPIRE;
         }
         this.cacheResultManager = CacheResultManager.getInstance(resultCacheExpire, enableResultCache);
+        this.connectionManager = ConnectionManager.getInstance(maxConnections, disuseStrategyType);
     }
 
     @Override

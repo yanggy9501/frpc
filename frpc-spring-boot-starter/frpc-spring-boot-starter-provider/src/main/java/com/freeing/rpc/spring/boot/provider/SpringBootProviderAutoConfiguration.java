@@ -28,6 +28,10 @@ public class SpringBootProviderAutoConfiguration {
             springBootProviderConfig.getHeartbeatInterval(),
             springBootProviderConfig.getScanNotActiveChannelInterval(),
             springBootProviderConfig.getEnableResultCache(),
-            springBootProviderConfig.getResultCacheExpire());
+            springBootProviderConfig.getResultCacheExpire(),
+            springBootProviderConfig.getFlowType(),
+            springBootProviderConfig.getMaxConnections(),
+            springBootProviderConfig.getDisuseStrategyType()
+            );
     }
 }
