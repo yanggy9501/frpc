@@ -77,18 +77,21 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         ProviderChannelCache.add(ctx.channel());
+        connectionManager.add(ctx.channel());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         ProviderChannelCache.remove(ctx.channel());
+        connectionManager.remove(ctx.channel());
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         super.channelUnregistered(ctx);
         ProviderChannelCache.remove(ctx.channel());
+        connectionManager.remove(ctx.channel());
     }
 
     @Override
@@ -98,6 +101,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
             Channel channel = ctx.channel();
             try {
                 logger.info("IdleStateEvent triggered, close channel " + channel.remoteAddress());
+                connectionManager.remove(channel);
                 channel.close();
             } finally {
                 channel.writeAndFlush(Unpooled.EMPTY_BUFFER)
@@ -110,6 +114,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcProtocol<RpcRequest> protocol) throws Exception {
         ServerThreadPool.submit(() -> {
+            connectionManager.update(ctx.channel());
             RpcHeader header = protocol.getHeader();
             RpcProtocol<RpcResponse>  responseRpcProtocol = handlerMessage(protocol, ctx.channel());
             ctx.writeAndFlush(responseRpcProtocol)
@@ -260,6 +265,8 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("server caught exception", cause);
+        ProviderChannelCache.remove(ctx.channel());
+        connectionManager.remove(ctx.channel());
         ctx.close();
     }
 }
