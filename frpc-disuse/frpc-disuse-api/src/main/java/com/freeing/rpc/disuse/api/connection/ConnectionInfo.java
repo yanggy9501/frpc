@@ -82,8 +82,8 @@ public class ConnectionInfo implements Serializable {
         this.lastUseTime = lastUseTime;
     }
 
-    public AtomicInteger getUseCount() {
-        return useCount;
+    public int getUseCount() {
+        return useCount.get();
     }
 
     public void setUseCount(AtomicInteger useCount) {

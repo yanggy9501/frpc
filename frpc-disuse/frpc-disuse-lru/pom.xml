@@ -3,24 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>freeingrpc</artifactId>
+        <artifactId>frpc-disuse</artifactId>
         <groupId>com.freeing</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>frpc-disuse</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>frpc-disuse-api</module>
-        <module>frpc-disuse-default</module>
-        <module>frpc-disuse-first</module>
-        <module>frpc-disuse-last</module>
-        <module>frpc-disuse-fifo</module>
-        <module>frpc-disuse-lfu</module>
-        <module>frpc-disuse-lru</module>
-        <module>frpc-disuse-random</module>
-    </modules>
+    <artifactId>frpc-disuse-lru</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -28,4 +17,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+
+    <dependencies>
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-disuse-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
