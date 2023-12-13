@@ -98,6 +98,16 @@ public class RpcConsumer implements Consumer {
     // 流控分析后置处理器
     private FlowPostProcessor flowPostProcessor =  ExtensionLoader.getExtension(FlowPostProcessor.class, RpcConstants.FLOW_POST_PROCESSOR_PRINT);
 
+    /**
+     * 是否开启数据缓冲
+     */
+    private boolean enableBuffer = true;
+
+    /**
+     * 缓冲区大小
+     */
+    private int bufferSize = Integer.MAX_VALUE;
+
     private RpcConsumer(int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes) {
         if (heartbeatInterval > 0) {
             this.heartbeatInterval = heartbeatInterval;
@@ -112,7 +122,7 @@ public class RpcConsumer implements Consumer {
         eventLoopGroup = new NioEventLoopGroup(4);
         bootstrap.group(eventLoopGroup)
             .channel(NioSocketChannel.class)
-            .handler(new RpcConsumerInitializer(heartbeatInterval, concurrentThreadPool, flowPostProcessor));
+            .handler(new RpcConsumerInitializer(heartbeatInterval, enableBuffer, bufferSize, concurrentThreadPool, flowPostProcessor));
         this.startHeartbeat();
     }
 
@@ -121,7 +131,7 @@ public class RpcConsumer implements Consumer {
         bootstrap = new Bootstrap();
         eventLoopGroup = new NioEventLoopGroup(4);
         bootstrap.group(eventLoopGroup).channel(NioSocketChannel.class)
-            .handler(new RpcConsumerInitializer(heartbeatInterval, concurrentThreadPool, flowPostProcessor));
+            .handler(new RpcConsumerInitializer(heartbeatInterval, enableBuffer, bufferSize, concurrentThreadPool, flowPostProcessor));
         this.startHeartbeat();
     }
 

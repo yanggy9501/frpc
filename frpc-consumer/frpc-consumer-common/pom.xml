@@ -47,5 +47,11 @@
             <artifactId>frpc-registry-zookeeper</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-buffer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
