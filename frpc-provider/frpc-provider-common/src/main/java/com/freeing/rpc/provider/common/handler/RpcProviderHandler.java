@@ -3,6 +3,8 @@ package com.freeing.rpc.provider.common.handler;
 import com.alibaba.fastjson.JSON;
 import com.freeing.fpc.chace.result.CacheResultKey;
 import com.freeing.fpc.chace.result.CacheResultManager;
+import com.freeing.rpc.buffer.cache.BufferCacheManager;
+import com.freeing.rpc.buffer.object.BufferObject;
 import com.freeing.rpc.common.helper.RpcServiceHelper;
 import com.freeing.rpc.common.threadpool.ServerThreadPool;
 import com.freeing.rpc.connection.manager.ConnectionManager;
@@ -14,6 +16,7 @@ import com.freeing.rpc.protocol.header.RpcHeader;
 import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.protocol.response.RpcResponse;
 import com.freeing.rpc.provider.common.cache.ProviderChannelCache;
+import com.freeing.rpc.threadpool.BufferCacheThreadPool;
 import com.freeing.rpc.threadpool.ConcurrentThreadPool;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -61,8 +64,20 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
      */
     private ConnectionManager connectionManager;
 
+    /**
+     * 是否开启缓冲区
+     */
+    private boolean enableBuffer;
+
+    /**
+     * 缓冲区管理器
+     */
+    private BufferCacheManager<BufferObject<RpcRequest>> bufferCacheManager;
+
+
     public RpcProviderHandler(String reflectType, Map<String, Object> handlerMap,
-        boolean enableResultCache, int resultCacheExpire, int maxConnections, String disuseStrategyType){
+        boolean enableResultCache, int resultCacheExpire, int maxConnections, String disuseStrategyType,
+        boolean enableBuffer, int bufferSize){
         this.reflectType = reflectType;
         this.handlerMap = handlerMap;
         this.enableResultCache = enableResultCache;
@@ -71,6 +86,62 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
         }
         this.cacheResultManager = CacheResultManager.getInstance(resultCacheExpire, enableResultCache);
         this.connectionManager = ConnectionManager.getInstance(maxConnections, disuseStrategyType);
+
+        // 开启缓冲
+        if (enableBuffer) {
+            logger.info("enable buffer...");
+            bufferCacheManager = BufferCacheManager.getInstance(bufferSize);
+            BufferCacheThreadPool.submit(this::consumerBufferCache);
+        }
+    }
+
+    /**
+     * 消费缓冲区的数据
+     */
+    private void consumerBufferCache() {
+        while (true) {
+            BufferObject<RpcRequest> bufferObject = this.bufferCacheManager.take();
+            if (Objects.nonNull(bufferObject)) {
+                ChannelHandlerContext ctx = bufferObject.getCtx();
+                RpcProtocol<RpcRequest> protocol = bufferObject.getProtocol();
+                RpcHeader header = protocol.getHeader();
+                RpcProtocol<RpcResponse> responseRpcProtocol = handlerRequestMessageWithCache(protocol, header);
+                this.writeAndFlush(header.getRequestId(), ctx, responseRpcProtocol);
+            }
+        }
+    }
+
+    /**
+     * 缓冲数据
+     */
+    private void bufferRequest(ChannelHandlerContext ctx, RpcProtocol<RpcRequest> protocol) {
+        RpcHeader header = protocol.getHeader();
+        // 接收到服务消费者发送的心跳消息
+        if (header.getMsgType() == (byte) RpcType.HEARTBEAT_FROM_CONSUMER.getType()){
+            RpcProtocol<RpcResponse> responseRpcProtocol = handlerHeartbeatMessageFromConsumer(protocol, header);
+            this.writeAndFlush(protocol.getHeader().getRequestId(), ctx, responseRpcProtocol);
+        }
+        else if (header.getMsgType() == (byte) RpcType.HEARTBEAT_TO_PROVIDER.getType()){  //接收到服务消费者响应的心跳消息
+            handlerHeartbeatMessageToProvider(protocol, ctx.channel());
+        }
+        else if (header.getMsgType() == (byte) RpcType.REQUEST.getType()){ //请求消息
+            this.bufferCacheManager.put(new BufferObject<>(ctx, protocol));
+        }
+    }
+
+    private void submitRequest(ChannelHandlerContext ctx, RpcProtocol<RpcRequest> protocol) {
+        RpcProtocol<RpcResponse> responseRpcProtocol = handlerMessage(protocol, ctx.channel());
+        writeAndFlush(protocol.getHeader().getRequestId(), ctx, responseRpcProtocol);
+    }
+
+    private void writeAndFlush(long requestId, ChannelHandlerContext ctx, RpcProtocol<RpcResponse> responseRpcProtocol) {
+        ctx.writeAndFlush(responseRpcProtocol)
+            .addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    logger.debug("Send response for request " + requestId);
+                }
+            });
     }
 
     @Override
@@ -115,15 +186,14 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcProtocol<
     protected void channelRead0(ChannelHandlerContext ctx, RpcProtocol<RpcRequest> protocol) throws Exception {
         ServerThreadPool.submit(() -> {
             connectionManager.update(ctx.channel());
-            RpcHeader header = protocol.getHeader();
-            RpcProtocol<RpcResponse>  responseRpcProtocol = handlerMessage(protocol, ctx.channel());
-            ctx.writeAndFlush(responseRpcProtocol)
-                .addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                        logger.debug("Send response for request {}", header.getRequestId());
-                    }
-                });
+            // 开启队列缓冲
+            if (enableBuffer){
+                this.bufferRequest(ctx, protocol);
+            }
+            // 未开启队列缓冲
+            else {
+                this.submitRequest(ctx, protocol);
+            }
         });
     }
 

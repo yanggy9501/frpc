@@ -97,10 +97,20 @@ public class BaseServer implements Server {
      */
     private String disuseStrategyType;
 
+    /**
+     * 是否开启数据缓冲
+     */
+    private boolean enableBuffer;
+
+    /**
+     * 缓冲区大小
+     */
+    private int bufferSize;
+
     public BaseServer(String serverAddress, String registryAddress, String registryType,
         String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval,
         boolean enableResultCache, int resultCacheExpire, String flowType,
-        int maxConnections, String disuseStrategyType) {
+        int maxConnections, String disuseStrategyType, boolean enableBuffer, int bufferSize) {
         if (!StringUtils.isEmpty(serverAddress)) {
             String[] serverArray = serverAddress.split(":");
             this.host = serverArray[0];
@@ -121,6 +131,8 @@ public class BaseServer implements Server {
         this.flowPostProcessor = ExtensionLoader.getExtension(FlowPostProcessor.class, flowType);
         this.maxConnections = maxConnections;
         this.disuseStrategyType = disuseStrategyType;
+        this.enableBuffer = enableBuffer;
+        this.bufferSize = bufferSize;
     }
 
     private RegistryService getRegistryService(String registryAddress, String registryType, String registryLoadBalanceType) {
@@ -154,7 +166,8 @@ public class BaseServer implements Server {
                             .addLast(RpcConstants.CODEC_ENCODER, new RpcEncoder(flowPostProcessor))
                             .addLast(RpcConstants.CODEC_SERVER_IDLE_HANDLER,
                                 new IdleStateHandler(0, 0, heartbeatInterval, TimeUnit.MILLISECONDS))
-                            .addLast(RpcConstants.CODEC_HANDLER, new RpcProviderHandler(reflectType, handlerMap, enableResultCache, resultCacheExpire, maxConnections, disuseStrategyType));
+                            .addLast(RpcConstants.CODEC_HANDLER,
+                                new RpcProviderHandler(reflectType, handlerMap, enableResultCache, resultCacheExpire, maxConnections, disuseStrategyType, enableBuffer, bufferSize));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)

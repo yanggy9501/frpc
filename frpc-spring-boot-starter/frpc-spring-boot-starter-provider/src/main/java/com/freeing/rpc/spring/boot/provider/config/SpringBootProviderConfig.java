@@ -71,11 +71,23 @@ public class SpringBootProviderConfig {
      */
     private String disuseStrategyType;
 
+    /**
+     * 是否开启数据缓冲
+     */
+    private boolean enableBuffer;
+
+    /**
+     * 缓冲区大小
+     */
+    private int bufferSize;
+
     public SpringBootProviderConfig() {
 
     }
 
-    public SpringBootProviderConfig(final String serverAddress, final String serverRegistryAddress, final String registryAddress, final String registryType, final String registryLoadBalanceType, final String reflectType, final int heartbeatInterval, int scanNotActiveChannelInterval, final boolean enableResultCache, final int resultCacheExpire, final int corePoolSize, final int maximumPoolSize, String flowType, final int maxConnections, final String disuseStrategyType) {
+    public SpringBootProviderConfig(final String serverAddress, final String serverRegistryAddress, final String registryAddress, final String registryType, final String registryLoadBalanceType, final String reflectType, final int heartbeatInterval, int scanNotActiveChannelInterval, final boolean enableResultCache, final int resultCacheExpire, final int corePoolSize, final int maximumPoolSize, String flowType,
+        final int maxConnections, final String disuseStrategyType,
+        boolean enableBuffer, int bufferSize) {
         this.serverAddress = serverAddress;
         this.registryAddress = registryAddress;
         this.registryType = registryType;
@@ -91,6 +103,8 @@ public class SpringBootProviderConfig {
         this.flowType = flowType;
         this.maxConnections = maxConnections;
         this.disuseStrategyType = disuseStrategyType;
+        this.enableBuffer = enableBuffer;
+        this.bufferSize = bufferSize;
     }
 
     public String getServerAddress() {
@@ -197,4 +211,23 @@ public class SpringBootProviderConfig {
         this.disuseStrategyType = disuseStrategyType;
     }
 
+    public boolean isEnableResultCache() {
+        return enableResultCache;
+    }
+
+    public boolean isEnableBuffer() {
+        return enableBuffer;
+    }
+
+    public void setEnableBuffer(boolean enableBuffer) {
+        this.enableBuffer = enableBuffer;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
 }

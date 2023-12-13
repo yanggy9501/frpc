@@ -58,6 +58,7 @@
         <module>frpc-threadpool</module>
         <module>frpc-connection</module>
         <module>frpc-disuse</module>
+        <module>frpc-buffer</module>
     </modules>
 
     <dependencies>
