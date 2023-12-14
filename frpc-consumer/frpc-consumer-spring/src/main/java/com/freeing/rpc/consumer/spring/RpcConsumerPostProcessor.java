@@ -86,11 +86,24 @@ public class RpcConsumerPostProcessor implements ApplicationContextAware, BeanCl
             builder.addPropertyValue("oneway", annotation.oneway());
             builder.addPropertyValue("proxy", annotation.proxy());
             builder.addPropertyValue("group", annotation.group());
-            // todo
             builder.addPropertyValue("scanNotActiveChannelInterval", annotation.scanNotActiveChannelInterval());
             builder.addPropertyValue("heartbeatInterval", annotation.heartbeatInterval());
             builder.addPropertyValue("retryInterval", annotation.retryInterval());
             builder.addPropertyValue("retryTimes", annotation.retryTimes());
+//            builder.addPropertyValue("enableResultCache", annotation.enableResultCache());
+//            builder.addPropertyValue("resultCacheExpire", annotation.resultCacheExpire());
+//            builder.addPropertyValue("enableDirectServer", annotation.enableDirectServer());
+//            builder.addPropertyValue("directServerUrl", annotation.directServerUrl());
+//            builder.addPropertyValue("enableDelayConnection", annotation.enableDelayConnection());
+//            builder.addPropertyValue("corePoolSize", annotation.corePoolSize());
+//            builder.addPropertyValue("maximumPoolSize", annotation.maximumPoolSize());
+//            builder.addPropertyValue("flowType", annotation.flowType());
+//            builder.addPropertyValue("enableBuffer", annotation.enableBuffer());
+//            builder.addPropertyValue("bufferSize", annotation.bufferSize());
+            builder.addPropertyValue("reflectType", annotation.reflectType());
+            builder.addPropertyValue("fallbackClass", annotation.fallbackClass());
+            builder.addPropertyValue("fallbackClassName", annotation.fallbackClassName());
+
             BeanDefinition beanDefinition = builder.getBeanDefinition();
             rpcRefBeanDefinitions.put(field.getName(), beanDefinition);
         }

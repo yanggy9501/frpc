@@ -37,7 +37,9 @@ public class SpringBootConsumerAutoConfiguration {
             springBootConsumerConfig.getRetryInterval(),
             springBootConsumerConfig.getRetryTimes(),
             springBootConsumerConfig.getEnableResultCache(),
-            springBootConsumerConfig.getResultCacheExpire()
+            springBootConsumerConfig.getResultCacheExpire(),
+            springBootConsumerConfig.getReflectType(),
+            springBootConsumerConfig.getFallbackClassName()
             );
     }
 }

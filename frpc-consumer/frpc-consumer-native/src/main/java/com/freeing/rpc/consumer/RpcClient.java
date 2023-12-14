@@ -86,10 +86,25 @@ public class RpcClient {
      */
     private int resultCacheExpire;
 
+    /**
+     * 反射类型
+     */
+    private String reflectType;
+
+    /**
+     * 容错类Class名称
+     */
+    private String fallbackClassName;
+
+    /**
+     * 容错类
+     */
+    private Class<?> fallbackClass;
+
     public RpcClient(String registryAddress, String registryType, String registryLoadBalanceType, String proxy,
         String serviceVersion, String serviceGroup, String serializationType, long timeout, boolean async,
         boolean oneway, int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes,
-        boolean enableResultCache, int resultCacheExpire) {
+        boolean enableResultCache, int resultCacheExpire, String reflectType, String fallbackClassName) {
         this.serviceVersion = serviceVersion;
         this.timeout = timeout;
         this.proxy = proxy;
@@ -104,6 +119,8 @@ public class RpcClient {
         this.enableResultCache = enableResultCache;
         this.resultCacheExpire = resultCacheExpire;
         this.registryService = this.getRegistryService(registryAddress, registryType, registryLoadBalanceType);
+        this.reflectType = reflectType;
+        this.fallbackClassName = fallbackClassName;
     }
 
     private RegistryService getRegistryService(String registryAddress, String registryType, String registryLoadBalanceType) {
@@ -135,7 +152,10 @@ public class RpcClient {
             async,
             oneway,
             enableResultCache,
-            resultCacheExpire
+            resultCacheExpire,
+            reflectType,
+            fallbackClassName,
+            fallbackClass
             )
         );
         return proxyFactory.getProxy(interfaceClass);
@@ -144,10 +164,147 @@ public class RpcClient {
     public <T> IAsyncObjectProxy createAsync(Class<T> interfaceClass) {
         return new ObjectProxy<>(interfaceClass, serviceVersion, serviceGroup, serializationType, timeout, registryService,
             RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes), async,
-            oneway, enableResultCache, resultCacheExpire);
+            oneway, enableResultCache, resultCacheExpire, reflectType, fallbackClassName, fallbackClass);
     }
 
     public void shutdown() {
         RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes).close();
+    }
+
+
+    public RegistryService getRegistryService() {
+        return registryService;
+    }
+
+    public void setRegistryService(RegistryService registryService) {
+        this.registryService = registryService;
+    }
+
+    public String getServiceVersion() {
+        return serviceVersion;
+    }
+
+    public void setServiceVersion(String serviceVersion) {
+        this.serviceVersion = serviceVersion;
+    }
+
+    public String getServiceGroup() {
+        return serviceGroup;
+    }
+
+    public void setServiceGroup(String serviceGroup) {
+        this.serviceGroup = serviceGroup;
+    }
+
+    public String getSerializationType() {
+        return serializationType;
+    }
+
+    public void setSerializationType(String serializationType) {
+        this.serializationType = serializationType;
+    }
+
+    public long getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
+
+    public void setAsync(boolean async) {
+        this.async = async;
+    }
+
+    public boolean isOneway() {
+        return oneway;
+    }
+
+    public void setOneway(boolean oneway) {
+        this.oneway = oneway;
+    }
+
+    public String getProxy() {
+        return proxy;
+    }
+
+    public void setProxy(String proxy) {
+        this.proxy = proxy;
+    }
+
+    public int getHeartbeatInterval() {
+        return heartbeatInterval;
+    }
+
+    public void setHeartbeatInterval(int heartbeatInterval) {
+        this.heartbeatInterval = heartbeatInterval;
+    }
+
+    public int getScanNotActiveChannelInterval() {
+        return scanNotActiveChannelInterval;
+    }
+
+    public void setScanNotActiveChannelInterval(int scanNotActiveChannelInterval) {
+        this.scanNotActiveChannelInterval = scanNotActiveChannelInterval;
+    }
+
+    public int getRetryInterval() {
+        return retryInterval;
+    }
+
+    public void setRetryInterval(int retryInterval) {
+        this.retryInterval = retryInterval;
+    }
+
+    public int getRetryTimes() {
+        return retryTimes;
+    }
+
+    public void setRetryTimes(int retryTimes) {
+        this.retryTimes = retryTimes;
+    }
+
+    public boolean isEnableResultCache() {
+        return enableResultCache;
+    }
+
+    public void setEnableResultCache(boolean enableResultCache) {
+        this.enableResultCache = enableResultCache;
+    }
+
+    public int getResultCacheExpire() {
+        return resultCacheExpire;
+    }
+
+    public void setResultCacheExpire(int resultCacheExpire) {
+        this.resultCacheExpire = resultCacheExpire;
+    }
+
+    public String getReflectType() {
+        return reflectType;
+    }
+
+    public void setReflectType(String reflectType) {
+        this.reflectType = reflectType;
+    }
+
+    public String getFallbackClassName() {
+        return fallbackClassName;
+    }
+
+    public void setFallbackClassName(String fallbackClassName) {
+        this.fallbackClassName = fallbackClassName;
+    }
+
+    public Class<?> getFallbackClass() {
+        return fallbackClass;
+    }
+
+    public void setFallbackClass(Class<?> fallbackClass) {
+        this.fallbackClass = fallbackClass;
     }
 }

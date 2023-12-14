@@ -82,6 +82,16 @@ public class SpringBootConsumerConfig {
      */
     private int resultCacheExpire;
 
+    /**
+     * 反射类型
+     */
+    private String reflectType;
+
+    /**
+     * 容错类Class名称
+     */
+    private String fallbackClassName;
+
     public SpringBootConsumerConfig() {
 
     }
@@ -234,5 +244,21 @@ public class SpringBootConsumerConfig {
 
     public void setResultCacheExpire(int resultCacheExpire) {
         this.resultCacheExpire = resultCacheExpire;
+    }
+
+    public String getReflectType() {
+        return reflectType;
+    }
+
+    public void setReflectType(String reflectType) {
+        this.reflectType = reflectType;
+    }
+
+    public String getFallbackClassName() {
+        return fallbackClassName;
+    }
+
+    public void setFallbackClassName(String fallbackClassName) {
+        this.fallbackClassName = fallbackClassName;
     }
 }

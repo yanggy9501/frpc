@@ -84,4 +84,19 @@ public @interface RpcReference {
      */
     int retryTimes() default 3;
 
+    /**
+     * 容错class
+     */
+    Class<?> fallbackClass() default void.class;
+
+    /**
+     * 容错class名称
+     */
+    String fallbackClassName() default "";
+
+    /**
+     * 反射类型
+     */
+    String reflectType() default "jdk";
+
 }
