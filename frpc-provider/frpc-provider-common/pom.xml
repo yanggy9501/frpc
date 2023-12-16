@@ -47,5 +47,11 @@
             <artifactId>frpc-buffer</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.freeing</groupId>
+            <artifactId>frpc-ratelimiter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

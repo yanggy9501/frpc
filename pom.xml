@@ -59,6 +59,7 @@
         <module>frpc-connection</module>
         <module>frpc-disuse</module>
         <module>frpc-buffer</module>
+        <module>frpc-ratelimiter</module>
     </modules>
 
     <dependencies>

@@ -107,10 +107,26 @@ public class BaseServer implements Server {
      */
     private int bufferSize;
 
+    /**
+     * 限流类型
+     */
+    private String rateLimiterType;
+
+    /**
+     * 在milliSeconds毫秒内最多能够通过的请求个数
+     */
+    private int permits;
+
+    /**
+     * 毫秒数
+     */
+    private int milliSeconds;
+
     public BaseServer(String serverAddress, String registryAddress, String registryType,
         String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval,
         boolean enableResultCache, int resultCacheExpire, String flowType,
-        int maxConnections, String disuseStrategyType, boolean enableBuffer, int bufferSize) {
+        int maxConnections, String disuseStrategyType, boolean enableBuffer, int bufferSize,
+        String rateLimiterType, int permits, int milliSeconds) {
         if (!StringUtils.isEmpty(serverAddress)) {
             String[] serverArray = serverAddress.split(":");
             this.host = serverArray[0];
@@ -133,6 +149,9 @@ public class BaseServer implements Server {
         this.disuseStrategyType = disuseStrategyType;
         this.enableBuffer = enableBuffer;
         this.bufferSize = bufferSize;
+        this.rateLimiterType = rateLimiterType;
+        this.permits = permits;
+        this.milliSeconds = milliSeconds;
     }
 
     private RegistryService getRegistryService(String registryAddress, String registryType, String registryLoadBalanceType) {
@@ -167,7 +186,9 @@ public class BaseServer implements Server {
                             .addLast(RpcConstants.CODEC_SERVER_IDLE_HANDLER,
                                 new IdleStateHandler(0, 0, heartbeatInterval, TimeUnit.MILLISECONDS))
                             .addLast(RpcConstants.CODEC_HANDLER,
-                                new RpcProviderHandler(reflectType, handlerMap, enableResultCache, resultCacheExpire, maxConnections, disuseStrategyType, enableBuffer, bufferSize));
+                                new RpcProviderHandler(reflectType, handlerMap, enableResultCache, resultCacheExpire,
+                                    maxConnections, disuseStrategyType, enableBuffer, bufferSize,
+                                    rateLimiterType, permits, milliSeconds));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)

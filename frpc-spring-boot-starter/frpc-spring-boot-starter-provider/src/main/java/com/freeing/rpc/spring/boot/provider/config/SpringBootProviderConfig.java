@@ -81,13 +81,28 @@ public class SpringBootProviderConfig {
      */
     private int bufferSize;
 
+    /**
+     * 限流类型
+     */
+    private String rateLimiterType;
+
+    /**
+     * 在milliSeconds毫秒内最多能够通过的请求个数
+     */
+    private int permits;
+
+    /**
+     * 毫秒数
+     */
+    private int milliSeconds;
+
     public SpringBootProviderConfig() {
 
     }
 
     public SpringBootProviderConfig(final String serverAddress, final String serverRegistryAddress, final String registryAddress, final String registryType, final String registryLoadBalanceType, final String reflectType, final int heartbeatInterval, int scanNotActiveChannelInterval, final boolean enableResultCache, final int resultCacheExpire, final int corePoolSize, final int maximumPoolSize, String flowType,
         final int maxConnections, final String disuseStrategyType,
-        boolean enableBuffer, int bufferSize) {
+        boolean enableBuffer, int bufferSize, String rateLimiterType, int permits, int milliSeconds) {
         this.serverAddress = serverAddress;
         this.registryAddress = registryAddress;
         this.registryType = registryType;
@@ -105,6 +120,9 @@ public class SpringBootProviderConfig {
         this.disuseStrategyType = disuseStrategyType;
         this.enableBuffer = enableBuffer;
         this.bufferSize = bufferSize;
+        this.rateLimiterType = rateLimiterType;
+        this.permits = permits;
+        this.milliSeconds = milliSeconds;
     }
 
     public String getServerAddress() {
@@ -229,5 +247,29 @@ public class SpringBootProviderConfig {
 
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
+    }
+
+    public String getRateLimiterType() {
+        return rateLimiterType;
+    }
+
+    public void setRateLimiterType(String rateLimiterType) {
+        this.rateLimiterType = rateLimiterType;
+    }
+
+    public int getPermits() {
+        return permits;
+    }
+
+    public void setPermits(int permits) {
+        this.permits = permits;
+    }
+
+    public int getMilliSeconds() {
+        return milliSeconds;
+    }
+
+    public void setMilliSeconds(int milliSeconds) {
+        this.milliSeconds = milliSeconds;
     }
 }
