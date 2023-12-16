@@ -1,8 +1,6 @@
 package com.freeing.rpc.demo.spring.annotation.provider.config;
 
-import com.freeing.rpc.provider.spring.RpcSpringServer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -41,9 +39,9 @@ public class SpringAnnotationProviderConfig {
     @Value("${server.resultCacheExpire}")
     private int resultCacheExpire;
 
-    @Bean
-    public RpcSpringServer rpcSpringServer(){
-        return new RpcSpringServer(serverAddress, registryAddress, registryType, registryLoadbalanceType, reflectType,
-            heartbeatInterval, scanNotActiveChannelInterval, enableResultCache, resultCacheExpire);
-    }
+//    @Bean
+//    public RpcSpringServer rpcSpringServer(){
+//        return new RpcSpringServer(serverAddress, registryAddress, registryType, registryLoadbalanceType, reflectType,
+//            heartbeatInterval, scanNotActiveChannelInterval, enableResultCache, resultCacheExpire);
+//    }
 }
