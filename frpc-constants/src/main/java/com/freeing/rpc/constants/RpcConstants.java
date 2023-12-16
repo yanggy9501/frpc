@@ -273,4 +273,6 @@ public class RpcConstants {
      * 默认的缓存区大小
      */
     public static final int DEFAULT_BUFFER_SIZE = 655350;
+
+    public static final String DEFAULT_RATELIMITER_INVOKER = "counter";
 }

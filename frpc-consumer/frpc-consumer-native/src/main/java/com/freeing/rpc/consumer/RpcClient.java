@@ -101,10 +101,26 @@ public class RpcClient {
      */
     private Class<?> fallbackClass;
 
+    /**
+     * 限流类型
+     */
+    private String rateLimiterType;
+
+    /**
+     * 在milliSeconds毫秒内最多能够通过的请求个数
+     */
+    private int permits;
+
+    /**
+     * 毫秒数
+     */
+    private int milliSeconds;
+
     public RpcClient(String registryAddress, String registryType, String registryLoadBalanceType, String proxy,
         String serviceVersion, String serviceGroup, String serializationType, long timeout, boolean async,
         boolean oneway, int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes,
-        boolean enableResultCache, int resultCacheExpire, String reflectType, String fallbackClassName) {
+        boolean enableResultCache, int resultCacheExpire, String reflectType, String fallbackClassName,
+        String rateLimiterType, int permits, int milliSeconds) {
         this.serviceVersion = serviceVersion;
         this.timeout = timeout;
         this.proxy = proxy;
@@ -121,6 +137,9 @@ public class RpcClient {
         this.registryService = this.getRegistryService(registryAddress, registryType, registryLoadBalanceType);
         this.reflectType = reflectType;
         this.fallbackClassName = fallbackClassName;
+        this.rateLimiterType = rateLimiterType;
+        this.permits = permits;
+        this.milliSeconds = milliSeconds;
     }
 
     private RegistryService getRegistryService(String registryAddress, String registryType, String registryLoadBalanceType) {
@@ -155,7 +174,10 @@ public class RpcClient {
             resultCacheExpire,
             reflectType,
             fallbackClassName,
-            fallbackClass
+            fallbackClass,
+            rateLimiterType,
+            permits,
+            milliSeconds
             )
         );
         return proxyFactory.getProxy(interfaceClass);
@@ -164,7 +186,10 @@ public class RpcClient {
     public <T> IAsyncObjectProxy createAsync(Class<T> interfaceClass) {
         return new ObjectProxy<>(interfaceClass, serviceVersion, serviceGroup, serializationType, timeout, registryService,
             RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes), async,
-            oneway, enableResultCache, resultCacheExpire, reflectType, fallbackClassName, fallbackClass);
+            oneway, enableResultCache, resultCacheExpire, reflectType, fallbackClassName, fallbackClass,
+            rateLimiterType,
+            permits,
+            milliSeconds);
     }
 
     public void shutdown() {
@@ -306,5 +331,29 @@ public class RpcClient {
 
     public void setFallbackClass(Class<?> fallbackClass) {
         this.fallbackClass = fallbackClass;
+    }
+
+    public String getRateLimiterType() {
+        return rateLimiterType;
+    }
+
+    public void setRateLimiterType(String rateLimiterType) {
+        this.rateLimiterType = rateLimiterType;
+    }
+
+    public int getPermits() {
+        return permits;
+    }
+
+    public void setPermits(int permits) {
+        this.permits = permits;
+    }
+
+    public int getMilliSeconds() {
+        return milliSeconds;
+    }
+
+    public void setMilliSeconds(int milliSeconds) {
+        this.milliSeconds = milliSeconds;
     }
 }

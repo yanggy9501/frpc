@@ -39,7 +39,10 @@ public class SpringBootConsumerAutoConfiguration {
             springBootConsumerConfig.getEnableResultCache(),
             springBootConsumerConfig.getResultCacheExpire(),
             springBootConsumerConfig.getReflectType(),
-            springBootConsumerConfig.getFallbackClassName()
+            springBootConsumerConfig.getFallbackClassName(),
+            springBootConsumerConfig.getReflectType(),
+            springBootConsumerConfig.getPermits(),
+            springBootConsumerConfig.getMilliSeconds()
             );
     }
 }

@@ -92,6 +92,26 @@ public class SpringBootConsumerConfig {
      */
     private String fallbackClassName;
 
+    /**
+     * 是否开启限流
+     */
+    private boolean enableRateLimiter;
+
+    /**
+     * 限流类型
+     */
+    private String rateLimiterType;
+
+    /**
+     * 在milliSeconds毫秒内最多能够通过的请求个数
+     */
+    private int permits;
+
+    /**
+     * 毫秒数
+     */
+    private int milliSeconds;
+
     public SpringBootConsumerConfig() {
 
     }
@@ -99,7 +119,8 @@ public class SpringBootConsumerConfig {
     public SpringBootConsumerConfig(final String registryAddress, final String registryType, final String loadBalanceType,
         final String proxy, final String version, final String group, final String serializationType,
         final int timeout, final boolean async, final boolean oneway, final int heartbeatInterval,
-        final int scanNotActiveChannelInterval, final int retryInterval, final int retryTimes) {
+        final int scanNotActiveChannelInterval, final int retryInterval, final int retryTimes,
+        final boolean enableRateLimiter, final String rateLimiterType, final int permits, final int milliSeconds) {
         this.registryAddress = registryAddress;
         this.registryType = registryType;
         this.loadBalanceType = loadBalanceType;
@@ -116,6 +137,10 @@ public class SpringBootConsumerConfig {
         this.scanNotActiveChannelInterval = scanNotActiveChannelInterval;
         this.retryInterval = retryInterval;
         this.retryTimes = retryTimes;
+        this.enableRateLimiter = enableRateLimiter;
+        this.rateLimiterType = rateLimiterType;
+        this.permits = permits;
+        this.milliSeconds = milliSeconds;
     }
 
     public String getRegistryAddress() {
@@ -260,5 +285,49 @@ public class SpringBootConsumerConfig {
 
     public void setFallbackClassName(String fallbackClassName) {
         this.fallbackClassName = fallbackClassName;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
+
+    public boolean isOneway() {
+        return oneway;
+    }
+
+    public boolean isEnableResultCache() {
+        return enableResultCache;
+    }
+
+    public boolean isEnableRateLimiter() {
+        return enableRateLimiter;
+    }
+
+    public void setEnableRateLimiter(boolean enableRateLimiter) {
+        this.enableRateLimiter = enableRateLimiter;
+    }
+
+    public String getRateLimiterType() {
+        return rateLimiterType;
+    }
+
+    public void setRateLimiterType(String rateLimiterType) {
+        this.rateLimiterType = rateLimiterType;
+    }
+
+    public int getPermits() {
+        return permits;
+    }
+
+    public void setPermits(int permits) {
+        this.permits = permits;
+    }
+
+    public int getMilliSeconds() {
+        return milliSeconds;
+    }
+
+    public void setMilliSeconds(int milliSeconds) {
+        this.milliSeconds = milliSeconds;
     }
 }

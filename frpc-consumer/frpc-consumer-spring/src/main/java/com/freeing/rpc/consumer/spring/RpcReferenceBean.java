@@ -110,6 +110,21 @@ public class RpcReferenceBean implements FactoryBean<Object> {
      */
     private Class<?> fallbackClass;
 
+    /**
+     * 限流类型
+     */
+    private String rateLimiterType;
+
+    /**
+     * 在milliSeconds毫秒内最多能够通过的请求个数
+     */
+    private int permits;
+
+    /**
+     * 毫秒数
+     */
+    private int milliSeconds;
+
     @Override
     public Object getObject() throws Exception {
         return object;
@@ -292,11 +307,40 @@ public class RpcReferenceBean implements FactoryBean<Object> {
         this.fallbackClass = fallbackClass;
     }
 
+    public boolean isEnableResultCache() {
+        return enableResultCache;
+    }
+
+    public String getRateLimiterType() {
+        return rateLimiterType;
+    }
+
+    public void setRateLimiterType(String rateLimiterType) {
+        this.rateLimiterType = rateLimiterType;
+    }
+
+    public int getPermits() {
+        return permits;
+    }
+
+    public void setPermits(int permits) {
+        this.permits = permits;
+    }
+
+    public int getMilliSeconds() {
+        return milliSeconds;
+    }
+
+    public void setMilliSeconds(int milliSeconds) {
+        this.milliSeconds = milliSeconds;
+    }
+
     @SuppressWarnings("unchecked")
     public void init() {
         RpcClient rpcClient = new RpcClient(registryAddress, registryType, loadBalanceType, proxy, version, group,
             serializationType, timeout, async, oneway, heartbeatInterval, scanNotActiveChannelInterval, retryInterval,
-            retryTimes, enableResultCache, resultCacheExpire, reflectType, fallbackClassName);
+            retryTimes, enableResultCache, resultCacheExpire, reflectType, fallbackClassName,
+            rateLimiterType, permits, milliSeconds);
         rpcClient.setFallbackClass(fallbackClass);
         this.object = rpcClient.create(interfaceClass);
     }

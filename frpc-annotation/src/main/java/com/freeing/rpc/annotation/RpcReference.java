@@ -99,4 +99,18 @@ public @interface RpcReference {
      */
     String reflectType() default "jdk";
 
+    /**
+     * 限流类型
+     */
+    String rateLimiterType() default "counter";
+
+    /**
+     * 在milliSeconds毫秒内最多能够通过的请求个数
+     */
+    int permits() default 100;;
+
+    /**
+     * 毫秒数
+     */
+    int milliSeconds() default 1000;
 }

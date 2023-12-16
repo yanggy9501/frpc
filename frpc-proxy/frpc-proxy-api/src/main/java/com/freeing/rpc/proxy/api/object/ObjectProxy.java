@@ -12,6 +12,7 @@ import com.freeing.rpc.protocol.request.RpcRequest;
 import com.freeing.rpc.proxy.api.async.IAsyncObjectProxy;
 import com.freeing.rpc.proxy.api.consumer.Consumer;
 import com.freeing.rpc.proxy.api.future.RPCFuture;
+import com.freeing.rpc.ratelimiter.api.RateLimiterInvoker;
 import com.freeing.rpc.reflect.api.ReflectInvoker;
 import com.freeing.rpc.registry.api.RegistryService;
 import com.freeing.rpc.spi.loader.ExtensionLoader;
@@ -91,6 +92,16 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
 
     private CacheResultManager<Object> cacheResultManager;
 
+    /**
+     * 限流规则SPI接口
+     */
+    private RateLimiterInvoker rateLimiterInvoker;
+
+    /**
+     * 是否开启限流
+     */
+    private boolean enableRateLimiter;
+
     public ObjectProxy(Class<T> clazz) {
         this.clazz = clazz;
     }
@@ -98,7 +109,8 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
     public ObjectProxy(Class<T> clazz, String serviceVersion, String serviceGroup, String serializationType, long timeout,
         RegistryService registryService, Consumer consumer, boolean async
         , boolean oneway, boolean enableResultCache,
-        int resultCacheExpire, String reflectType, String fallbackClassName, Class<?> fallbackClass) {
+        int resultCacheExpire, String reflectType, String fallbackClassName, Class<?> fallbackClass,
+        String rateLimiterType, int permits, int milliSeconds) {
         this.clazz = clazz;
         this.serviceVersion = serviceVersion;
         this.timeout = timeout;
@@ -115,7 +127,18 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
         this.cacheResultManager = CacheResultManager.getInstance(resultCacheExpire, enableResultCache);
         this.reflectInvoker = ExtensionLoader.getExtension(ReflectInvoker.class, reflectType);
         this.fallbackClass = this.getFallbackClass(fallbackClassName, fallbackClass);
+        this.enableRateLimiter = enableRateLimiter;
+        this.initRateLimiter(rateLimiterType, permits, milliSeconds);
     }
+
+    private void initRateLimiter(String rateLimiterType, int permits, int milliSeconds) {
+        if (enableRateLimiter){
+            rateLimiterType = StringUtils.isEmpty(rateLimiterType) ? RpcConstants.DEFAULT_RATELIMITER_INVOKER : rateLimiterType;
+            this.rateLimiterInvoker = ExtensionLoader.getExtension(RateLimiterInvoker.class, rateLimiterType);
+            this.rateLimiterInvoker.init(permits, milliSeconds);
+        }
+    }
+
 
     private Class<?> getFallbackClass(String fallbackClassName, Class<?> fallbackClass) {
         if (this.isFallbackClassEmpty(fallbackClass)) {
@@ -154,7 +177,7 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
         if (enableResultCache) {
             return invokeSendRequestMethodCache(method, args);
         } else {
-            return invokeSendRequestMethod(method, args);
+            return invokeSendRequestMethodWithRateLimiter(method, args);
         }
    }
 
@@ -162,7 +185,7 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
         CacheResultKey key = new CacheResultKey(method.getDeclaringClass().getName(), method.getName(), method.getParameterTypes(), args, serviceVersion, serviceGroup);
         Object obj = this.cacheResultManager.get(key);
         if (Objects.isNull(obj)) {
-            obj = invokeSendRequestMethod(method, args);
+            obj = invokeSendRequestMethodWithRateLimiter(method, args);
             if (Objects.nonNull(obj)) {
                 key.setCacheTimeStamp(System.currentTimeMillis());
                 this.cacheResultManager.put(key, obj);
@@ -199,6 +222,24 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
             return getFallbackResult(method, args);
         }
 
+    }
+
+    private Object invokeSendRequestMethodWithRateLimiter(Method method, Object[] args) throws Exception {
+        Object result = null;
+        if (enableRateLimiter) {
+            if (rateLimiterInvoker.tryAcquire()) {
+                try {
+                    result = invokeSendRequestMethod(method, args);
+                }finally {
+                    rateLimiterInvoker.release();
+                }
+            } else {
+                //TODO 执行各种策略
+            }
+        } else {
+            result = invokeSendRequestMethod(method, args);
+        }
+        return result;
     }
 
     private Object getFallbackResult(Method method, Object[] args) {
