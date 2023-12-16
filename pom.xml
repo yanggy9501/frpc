@@ -60,6 +60,7 @@
         <module>frpc-disuse</module>
         <module>frpc-buffer</module>
         <module>frpc-ratelimiter</module>
+        <module>frpc-fusing</module>
     </modules>
 
     <dependencies>

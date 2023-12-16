@@ -275,4 +275,44 @@ public class RpcConstants {
     public static final int DEFAULT_BUFFER_SIZE = 655350;
 
     public static final String DEFAULT_RATELIMITER_INVOKER = "counter";
+
+    /**
+     * 异常处理
+     */
+    public static final String RATE_LIMILTER_FAIL_STRATEGY_EXCEPTION = "exception";
+
+    /**
+     * 直接调用原来方法
+     */
+    public static final String RATE_LIMILTER_FAIL_STRATEGY_DIRECT = "direct";
+
+    /**
+     * 容错降级处理
+     */
+    public static final String RATE_LIMILTER_FAIL_STRATEGY_FALLBACK = "fallback";
+
+    /**
+     * 熔断状态：关闭
+     */
+    public static final int FUSING_STATUS_CLOSED = 1;
+
+    /**
+     * 熔断状态：半开启
+     */
+    public static final int FUSING_STATUS_HALF_OPEN = 2;
+
+    /**
+     * 熔断状态：开启
+     */
+    public static final int FUSING_STATUS_OPEN = 3;
+
+    /**
+     * 默认熔断时间值，毫秒
+     */
+    public static final int DEFAULT_FUSING_MILLI_SECONDS = 5000;
+
+    /***
+     * 默认熔断总次数或错误率
+     */
+    public static final double DEFAULT_FUSING_TOTAL_FAILURE = 10;
 }

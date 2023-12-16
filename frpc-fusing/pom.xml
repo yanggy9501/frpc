@@ -9,12 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>frpc-ratelimiter</artifactId>
+    <artifactId>frpc-fusing</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>frpc-ratelimiter-api</module>
-        <module>frpc-ratelimiter-counter</module>
-        <module>frpc-ratelimiter-semaphore</module>
+        <module>frpc-fusing-api</module>
+        <module>frpc-fusing-counter</module>
     </modules>
 
     <properties>

@@ -1,0 +1,1 @@
+semaphore=com.freeing.rpc.ratelimiter.semaphore.SemaphoreRateLimiterInvoker

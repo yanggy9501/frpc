@@ -122,11 +122,16 @@ public class BaseServer implements Server {
      */
     private int milliSeconds;
 
+    /**
+     * 当限流失败时的处理策略
+     */
+    private String rateLimiterFailStrategy;
+
     public BaseServer(String serverAddress, String registryAddress, String registryType,
         String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval,
         boolean enableResultCache, int resultCacheExpire, String flowType,
         int maxConnections, String disuseStrategyType, boolean enableBuffer, int bufferSize,
-        String rateLimiterType, int permits, int milliSeconds) {
+        String rateLimiterType, int permits, int milliSeconds, String rateLimiterFailStrategy) {
         if (!StringUtils.isEmpty(serverAddress)) {
             String[] serverArray = serverAddress.split(":");
             this.host = serverArray[0];
@@ -152,6 +157,7 @@ public class BaseServer implements Server {
         this.rateLimiterType = rateLimiterType;
         this.permits = permits;
         this.milliSeconds = milliSeconds;
+        this.rateLimiterFailStrategy = rateLimiterFailStrategy;
     }
 
     private RegistryService getRegistryService(String registryAddress, String registryType, String registryLoadBalanceType) {
@@ -188,7 +194,7 @@ public class BaseServer implements Server {
                             .addLast(RpcConstants.CODEC_HANDLER,
                                 new RpcProviderHandler(reflectType, handlerMap, enableResultCache, resultCacheExpire,
                                     maxConnections, disuseStrategyType, enableBuffer, bufferSize,
-                                    rateLimiterType, permits, milliSeconds));
+                                    rateLimiterType, permits, milliSeconds, rateLimiterFailStrategy));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)
